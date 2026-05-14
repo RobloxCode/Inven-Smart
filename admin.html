@@ -1,0 +1,3552 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inven-Smart · Panel Administrativo</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=DM+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #070d18;
+      --bg2: #0b1425;
+      --surface: #0f1e36;
+      --surface2: #162844;
+      --surface3: #1c3254;
+      --surface4: #223b62;
+      --cyan: #00d4ff;
+      --cyan2: #38bdf8;
+      --cyan-dim: rgba(0, 212, 255, .12);
+      --cyan-glow: rgba(0, 212, 255, .25);
+      --green: #10f090;
+      --green-dim: rgba(16, 240, 144, .12);
+      --red: #ff3d6b;
+      --red-dim: rgba(255, 61, 107, .12);
+      --yellow: #ffd000;
+      --yellow-dim: rgba(255, 208, 0, .12);
+      --orange: #ff7c2a;
+      --purple: #b47dff;
+      --text: #ddeeff;
+      --text2: #7aa0c4;
+      --text3: #3a6080;
+      --border: rgba(0, 212, 255, .1);
+      --border2: rgba(0, 212, 255, .06);
+      --mono: 'DM Mono', monospace;
+      --sans: 'DM Sans', sans-serif;
+      --display: 'Syne', sans-serif;
+      --sidebar: 240px;
+      --topbar: 54px;
+      --r: 10px;
+      --r2: 6px;
+      --shadow: 0 4px 32px rgba(0, 0, 0, .5);
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    html,
+    body {
+      height: 100%;
+      overflow: hidden
+    }
+
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column
+    }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      height: var(--topbar);
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 20px 0 0;
+      gap: 16px;
+      flex-shrink: 0;
+      z-index: 200
+    }
+
+    .topbar-logo {
+      width: var(--sidebar);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 20px;
+      border-right: 1px solid var(--border);
+      height: 100%
+    }
+
+    .topbar-logo .logo-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--cyan), #0080aa);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 16px var(--cyan-glow)
+    }
+
+    .topbar-logo .logo-icon svg {
+      width: 18px;
+      height: 18px;
+      color: #fff
+    }
+
+    .topbar-logo .logo-txt {
+      font-family: var(--display);
+      font-weight: 800;
+      font-size: 15px;
+      color: var(--cyan);
+      letter-spacing: -.02em
+    }
+
+    .topbar-logo .logo-txt span {
+      display: block;
+      font-size: 9px;
+      font-weight: 400;
+      color: var(--text2);
+      font-family: var(--sans);
+      letter-spacing: .06em;
+      text-transform: uppercase
+    }
+
+    .topbar-center {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .live-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--green);
+      font-family: var(--mono)
+    }
+
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: livepulse 1.4s infinite
+    }
+
+    @keyframes livepulse {
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 rgba(16, 240, 144, .6)
+      }
+
+      50% {
+        box-shadow: 0 0 0 6px rgba(16, 240, 144, 0)
+      }
+    }
+
+    .topbar-time {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--text2);
+      padding: 0 16px;
+      border-left: 1px solid var(--border)
+    }
+
+    .topbar-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-left: 16px;
+      border-left: 1px solid var(--border)
+    }
+
+    .topbar-av {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #7c3aed, #6d28d9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: 12px;
+      color: #fff;
+      border: 2px solid rgba(124, 58, 237, .5)
+    }
+
+    .topbar-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.2
+    }
+
+    .topbar-name span {
+      display: block;
+      font-size: 10px;
+      color: var(--text2);
+      font-weight: 400
+    }
+
+    .topbar-notif {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      margin-left: 8px
+    }
+
+    .topbar-notif svg {
+      width: 16px;
+      height: 16px;
+      color: var(--text2)
+    }
+
+    .notif-dot {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--red);
+      border: 2px solid var(--bg2)
+    }
+
+    /* ── MAIN ── */
+    .main-wrap {
+      display: flex;
+      flex: 1;
+      overflow: hidden
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: var(--sidebar);
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow-y: auto;
+      padding: 16px 12px
+    }
+
+    .sidebar::-webkit-scrollbar {
+      width: 3px
+    }
+
+    .sidebar::-webkit-scrollbar-thumb {
+      background: var(--surface3)
+    }
+
+    .sb-section {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text3);
+      padding: 0 8px;
+      margin: 16px 0 6px
+    }
+
+    .sb-section:first-child {
+      margin-top: 0
+    }
+
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 10px;
+      border-radius: var(--r2);
+      cursor: pointer;
+      transition: all .18s ease;
+      color: var(--text2);
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 2px;
+      border: 1px solid transparent;
+      user-select: none
+    }
+
+    .nav-btn svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      opacity: .7
+    }
+
+    .nav-btn:hover {
+      background: var(--surface);
+      color: var(--text);
+      border-color: var(--border)
+    }
+
+    .nav-btn.active {
+      background: var(--cyan-dim);
+      color: var(--cyan);
+      border-color: rgba(0, 212, 255, .2)
+    }
+
+    .nav-btn.active svg {
+      opacity: 1
+    }
+
+    .nav-badge {
+      margin-left: auto;
+      border-radius: 10px;
+      padding: 1px 6px;
+      font-size: 9px;
+      font-weight: 700;
+      font-family: var(--mono)
+    }
+
+    .nav-badge.red {
+      background: var(--red);
+      color: #fff
+    }
+
+    .nav-badge.yellow {
+      background: var(--yellow);
+      color: #000
+    }
+
+    .sidebar-bottom {
+      margin-top: auto;
+      padding-top: 16px;
+      border-top: 1px solid var(--border)
+    }
+
+    /* ── CONTENT ── */
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      background: var(--bg);
+      padding: 24px
+    }
+
+    .content::-webkit-scrollbar {
+      width: 5px
+    }
+
+    .content::-webkit-scrollbar-thumb {
+      background: var(--surface3);
+      border-radius: 3px
+    }
+
+    .view {
+      display: none;
+      animation: fadeUp .22s ease both
+    }
+
+    .view.active {
+      display: block
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(8px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    /* ── PAGE HEADER ── */
+    .page-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 22px;
+      gap: 16px;
+      flex-wrap: wrap
+    }
+
+    .page-title {
+      font-family: var(--display);
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -.03em;
+      line-height: 1.1
+    }
+
+    .page-title span {
+      display: block;
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--text2);
+      font-family: var(--sans);
+      margin-top: 3px;
+      letter-spacing: 0
+    }
+
+    .page-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap
+    }
+
+    /* ── GRIDS ── */
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 14px
+    }
+
+    .grid-wide {
+      display: grid;
+      grid-template-columns: 3fr 2fr;
+      gap: 16px
+    }
+
+    /* ── WIDGET ── */
+    .widget {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 18px;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 16px
+    }
+
+    .widget::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan-glow), transparent)
+    }
+
+    .widget-title {
+      font-family: var(--display);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--text2);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px
+    }
+
+    .widget-title svg {
+      width: 13px;
+      height: 13px
+    }
+
+    /* ── KPI ── */
+    .kpi {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 16px 18px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color .2s
+    }
+
+    .kpi:hover {
+      border-color: var(--cyan)
+    }
+
+    .kpi .kpi-label {
+      font-size: 10px;
+      color: var(--text2);
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin-bottom: 6px
+    }
+
+    .kpi .kpi-val {
+      font-family: var(--mono);
+      font-size: 26px;
+      font-weight: 500;
+      line-height: 1;
+      color: var(--text)
+    }
+
+    .kpi .kpi-val.cyan {
+      color: var(--cyan)
+    }
+
+    .kpi .kpi-val.green {
+      color: var(--green)
+    }
+
+    .kpi .kpi-val.red {
+      color: var(--red)
+    }
+
+    .kpi .kpi-val.yellow {
+      color: var(--yellow)
+    }
+
+    .kpi .kpi-sub {
+      font-size: 10px;
+      color: var(--text2);
+      margin-top: 6px
+    }
+
+    /* ── BADGE ── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 600;
+      font-family: var(--mono)
+    }
+
+    .badge-green {
+      background: var(--green-dim);
+      color: var(--green);
+      border: 1px solid rgba(16, 240, 144, .25)
+    }
+
+    .badge-red {
+      background: var(--red-dim);
+      color: var(--red);
+      border: 1px solid rgba(255, 61, 107, .25)
+    }
+
+    .badge-yellow {
+      background: var(--yellow-dim);
+      color: var(--yellow);
+      border: 1px solid rgba(255, 208, 0, .25)
+    }
+
+    .badge-cyan {
+      background: var(--cyan-dim);
+      color: var(--cyan);
+      border: 1px solid rgba(0, 212, 255, .25)
+    }
+
+    .badge-purple {
+      background: rgba(180, 125, 255, .12);
+      color: var(--purple);
+      border: 1px solid rgba(180, 125, 255, .25)
+    }
+
+    .badge-orange {
+      background: rgba(255, 124, 42, .12);
+      color: var(--orange);
+      border: 1px solid rgba(255, 124, 42, .25)
+    }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: var(--r2);
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all .18s ease;
+      white-space: nowrap
+    }
+
+    .btn svg {
+      width: 13px;
+      height: 13px;
+      flex-shrink: 0
+    }
+
+    .btn-cyan {
+      background: var(--cyan);
+      color: #000;
+      box-shadow: 0 0 16px var(--cyan-glow)
+    }
+
+    .btn-cyan:hover {
+      box-shadow: 0 0 24px rgba(0, 212, 255, .4)
+    }
+
+    .btn-ghost {
+      background: var(--surface2);
+      color: var(--text2);
+      border: 1px solid var(--border)
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--cyan);
+      color: var(--cyan)
+    }
+
+    .btn-red {
+      background: var(--red-dim);
+      color: var(--red);
+      border: 1px solid rgba(255, 61, 107, .3)
+    }
+
+    .btn-red:hover {
+      background: rgba(255, 61, 107, .22)
+    }
+
+    .btn-green {
+      background: var(--green-dim);
+      color: var(--green);
+      border: 1px solid rgba(16, 240, 144, .3)
+    }
+
+    .btn-yellow {
+      background: var(--yellow-dim);
+      color: var(--yellow);
+      border: 1px solid rgba(255, 208, 0, .3)
+    }
+
+    .btn-sm {
+      padding: 5px 10px;
+      font-size: 11px
+    }
+
+    .btn-xs {
+      padding: 3px 8px;
+      font-size: 10px
+    }
+
+    /* ── TABLE ── */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px
+    }
+
+    .data-table th {
+      padding: 9px 12px;
+      text-align: left;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--text3);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+      position: sticky;
+      top: 0;
+      background: var(--surface)
+    }
+
+    .data-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border2);
+      color: var(--text2);
+      vertical-align: middle
+    }
+
+    .data-table tr:last-child td {
+      border-bottom: none
+    }
+
+    .data-table tbody tr {
+      cursor: pointer;
+      transition: background .12s
+    }
+
+    .data-table tbody tr:hover td {
+      background: rgba(0, 212, 255, .04);
+      color: var(--text)
+    }
+
+    .td-mono {
+      font-family: var(--mono);
+      font-size: 11px
+    }
+
+    .td-name {
+      font-weight: 600;
+      color: var(--text) !important
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border-radius: var(--r2);
+      max-height: calc(100vh - 320px)
+    }
+
+    .table-wrap::-webkit-scrollbar {
+      width: 4px;
+      height: 4px
+    }
+
+    .table-wrap::-webkit-scrollbar-thumb {
+      background: var(--surface3)
+    }
+
+    /* ── SEARCH / FILTER BAR ── */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      flex-wrap: wrap
+    }
+
+    .search-input-wrap {
+      flex: 1;
+      min-width: 200px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      padding: 7px 12px
+    }
+
+    .search-input-wrap svg {
+      width: 14px;
+      height: 14px;
+      color: var(--text3);
+      flex-shrink: 0
+    }
+
+    .search-input-wrap input {
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-size: 12px;
+      font-family: var(--sans);
+      flex: 1
+    }
+
+    .search-input-wrap input::placeholder {
+      color: var(--text3)
+    }
+
+    .filter-chip {
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text2);
+      transition: all .15s;
+      font-family: var(--mono)
+    }
+
+    .filter-chip:hover,
+    .filter-chip.active {
+      background: var(--cyan-dim);
+      border-color: rgba(0, 212, 255, .3);
+      color: var(--cyan)
+    }
+
+    .filter-chip.red-chip.active {
+      background: var(--red-dim);
+      border-color: rgba(255, 61, 107, .3);
+      color: var(--red)
+    }
+
+    /* ── STOCK PROGRESS ── */
+    .stock-bar {
+      height: 5px;
+      background: var(--surface3);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 4px;
+      width: 80px
+    }
+
+    .stock-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width .4s ease
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0
+    }
+
+    /* ═══════════════════════════════════════
+   MODALES GLOBALES
+═══════════════════════════════════════ */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(4, 10, 22, .88);
+      backdrop-filter: blur(6px);
+      align-items: center;
+      justify-content: center
+    }
+
+    .modal-overlay.open {
+      display: flex;
+      animation: mfade .2s ease
+    }
+
+    @keyframes mfade {
+      from {
+        opacity: 0
+      }
+
+      to {
+        opacity: 1
+      }
+    }
+
+    .modal-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      width: 100%;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, .6);
+      animation: mup .25s cubic-bezier(.4, 0, .2, 1)
+    }
+
+    @keyframes mup {
+      from {
+        transform: translateY(20px);
+        opacity: 0
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1
+      }
+    }
+
+    .modal-box.sm {
+      max-width: 480px
+    }
+
+    .modal-box.md {
+      max-width: 640px
+    }
+
+    .modal-box.lg {
+      max-width: 900px
+    }
+
+    .modal-box.xl {
+      max-width: 1100px
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0
+    }
+
+    .modal-title {
+      font-family: var(--display);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text)
+    }
+
+    .modal-close {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all .15s;
+      flex-shrink: 0
+    }
+
+    .modal-close:hover {
+      border-color: var(--red);
+      color: var(--red)
+    }
+
+    .modal-close svg {
+      width: 14px;
+      height: 14px;
+      color: var(--text2)
+    }
+
+    .modal-body {
+      padding: 20px;
+      overflow-y: auto;
+      flex: 1
+    }
+
+    .modal-body::-webkit-scrollbar {
+      width: 4px
+    }
+
+    .modal-body::-webkit-scrollbar-thumb {
+      background: var(--surface3)
+    }
+
+    .modal-footer {
+      padding: 14px 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      flex-shrink: 0
+    }
+
+    /* FORM */
+    .form-row {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 12px
+    }
+
+    .form-row.cols-2 {
+      grid-template-columns: 1fr 1fr
+    }
+
+    .form-row.cols-3 {
+      grid-template-columns: 1fr 1fr 1fr
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px
+    }
+
+    .form-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--text2);
+      display: flex;
+      align-items: center;
+      gap: 5px
+    }
+
+    .form-label svg {
+      width: 11px;
+      height: 11px
+    }
+
+    .form-control {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      padding: 9px 12px;
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 13px;
+      outline: none;
+      transition: border-color .18s;
+      width: 100%
+    }
+
+    .form-control:focus {
+      border-color: var(--cyan);
+      background: var(--surface3)
+    }
+
+    .form-control::placeholder {
+      color: var(--text3)
+    }
+
+    .form-select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233a6080' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 14px;
+      cursor: pointer
+    }
+
+    .form-section-title {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin: 16px 0 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border)
+    }
+
+    /* TICKET SUMMARY */
+    .ticket-summary {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      overflow: hidden;
+      margin-top: 14px
+    }
+
+    .ts-header {
+      background: var(--surface3);
+      padding: 8px 14px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--text2)
+    }
+
+    .ts-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 14px;
+      border-bottom: 1px solid var(--border2)
+    }
+
+    .ts-row:last-child {
+      border-bottom: none
+    }
+
+    .ts-label {
+      font-size: 12px;
+      color: var(--text2)
+    }
+
+    .ts-value {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text)
+    }
+
+    .ts-row.total .ts-label {
+      font-weight: 700;
+      color: var(--text);
+      font-size: 13px
+    }
+
+    .ts-row.total .ts-value {
+      color: var(--green);
+      font-size: 16px
+    }
+
+    .ts-row.iva .ts-value {
+      color: var(--yellow)
+    }
+
+    /* USER DETAIL */
+    .user-hero {
+      background: linear-gradient(135deg, rgba(0, 212, 255, .06), rgba(16, 240, 144, .04));
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 20px;
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      margin-bottom: 16px
+    }
+
+    .user-av-lg {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--display);
+      font-weight: 800;
+      font-size: 22px;
+      color: #fff;
+      flex-shrink: 0;
+      border: 3px solid rgba(0, 212, 255, .4)
+    }
+
+    .user-info-main {
+      flex: 1
+    }
+
+    .user-info-main .u-name {
+      font-family: var(--display);
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text)
+    }
+
+    .user-info-main .u-role {
+      font-size: 12px;
+      color: var(--text2);
+      margin-top: 2px
+    }
+
+    .user-info-main .u-meta {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+      flex-wrap: wrap
+    }
+
+    .user-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 16px
+    }
+
+    .user-stat {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      padding: 12px 14px
+    }
+
+    .user-stat .us-val {
+      font-family: var(--mono);
+      font-size: 22px;
+      font-weight: 500;
+      line-height: 1
+    }
+
+    .user-stat .us-lbl {
+      font-size: 10px;
+      color: var(--text2);
+      margin-top: 4px
+    }
+
+    /* TIMELINE */
+    .timeline {
+      position: relative;
+      padding-left: 18px
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 5px;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: var(--border)
+    }
+
+    .tl-item {
+      position: relative;
+      margin-bottom: 12px;
+      animation: fadeUp .2s ease
+    }
+
+    .tl-dot {
+      position: absolute;
+      left: -16px;
+      top: 3px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      border: 2px solid var(--cyan);
+      background: var(--bg2)
+    }
+
+    .tl-dot.green {
+      border-color: var(--green)
+    }
+
+    .tl-dot.red {
+      border-color: var(--red)
+    }
+
+    .tl-dot.yellow {
+      border-color: var(--yellow)
+    }
+
+    .tl-dot.orange {
+      border-color: var(--orange)
+    }
+
+    .tl-time {
+      font-size: 9px;
+      font-family: var(--mono);
+      color: var(--text3);
+      margin-bottom: 2px
+    }
+
+    .tl-event {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text)
+    }
+
+    .tl-detail {
+      font-size: 11px;
+      color: var(--text2);
+      margin-top: 2px;
+      line-height: 1.45
+    }
+
+    /* CAM / BIO SECTION */
+    .cam-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px
+    }
+
+    .cam-cell {
+      background: #000;
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      aspect-ratio: 16/9;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color .2s
+    }
+
+    .cam-cell:hover {
+      border-color: var(--cyan)
+    }
+
+    .cam-scene {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(160deg, #08111e 60%, #0d1e35);
+      position: relative
+    }
+
+    .cam-person {
+      position: absolute;
+      bottom: 25%;
+      width: 14px;
+      height: 28px;
+      border-radius: 3px;
+      background: rgba(0, 212, 255, .15);
+      border: 1px solid var(--cyan);
+      animation: camwalk 4s ease-in-out infinite
+    }
+
+    @keyframes camwalk {
+
+      0%,
+      100% {
+        left: 20%
+      }
+
+      50% {
+        left: 65%
+      }
+    }
+
+    .cam-person::after {
+      content: '';
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(0, 212, 255, .2);
+      border: 1px solid var(--cyan)
+    }
+
+    .bbox {
+      position: absolute;
+      border: 1px solid var(--cyan);
+      border-radius: 2px;
+      pointer-events: none
+    }
+
+    .bbox-label {
+      position: absolute;
+      top: -18px;
+      left: 0;
+      font-family: var(--mono);
+      font-size: 8px;
+      color: var(--cyan);
+      background: rgba(0, 212, 255, .15);
+      padding: 1px 5px;
+      border-radius: 3px;
+      white-space: nowrap
+    }
+
+    .cam-label {
+      position: absolute;
+      bottom: 6px;
+      left: 8px;
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--cyan);
+      background: rgba(0, 0, 0, .6);
+      padding: 2px 6px;
+      border-radius: 3px
+    }
+
+    .cam-rec {
+      position: absolute;
+      top: 6px;
+      right: 8px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--red)
+    }
+
+    .cam-rec-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--red);
+      animation: livepulse 1s infinite
+    }
+
+    .cam-alert {
+      border-color: rgba(255, 61, 107, .6) !important
+    }
+
+    .alert-overlay {
+      position: absolute;
+      inset: 0;
+      border: 2px solid var(--red);
+      border-radius: var(--r2);
+      animation: alertblink 1s infinite;
+      pointer-events: none
+    }
+
+    @keyframes alertblink {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .3
+      }
+    }
+
+    .id-log-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border2);
+      transition: background .15s
+    }
+
+    .id-log-item:hover {
+      background: rgba(0, 212, 255, .04)
+    }
+
+    .id-thumb {
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      background: var(--surface3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: 10px;
+      flex-shrink: 0;
+      border: 1px solid var(--border)
+    }
+
+    .perm-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border2)
+    }
+
+    .perm-row:last-child {
+      border-bottom: none
+    }
+
+    .perm-av {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: 9px;
+      color: #fff;
+      flex-shrink: 0
+    }
+
+    .perm-info {
+      flex: 1
+    }
+
+    .perm-name {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text)
+    }
+
+    .perm-zones {
+      font-size: 10px;
+      color: var(--text2);
+      font-family: var(--mono)
+    }
+
+    .toggle {
+      width: 32px;
+      height: 18px;
+      border-radius: 9px;
+      background: var(--surface3);
+      position: relative;
+      cursor: pointer;
+      transition: background .2s;
+      flex-shrink: 0;
+      border: 1px solid var(--border)
+    }
+
+    .toggle.on {
+      background: var(--green)
+    }
+
+    .toggle::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #fff;
+      transition: left .2s
+    }
+
+    .toggle.on::after {
+      left: 16px
+    }
+
+    /* ANOMALY */
+    .anomaly-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      display: flex;
+      gap: 12px;
+      cursor: pointer;
+      transition: border-color .2s
+    }
+
+    .anomaly-card:hover {
+      border-color: var(--red)
+    }
+
+    .anomaly-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0
+    }
+
+    .anomaly-icon.red {
+      background: var(--red-dim);
+      border: 1px solid rgba(255, 61, 107, .25)
+    }
+
+    .anomaly-icon.yellow {
+      background: var(--yellow-dim);
+      border: 1px solid rgba(255, 208, 0, .25)
+    }
+
+    .anomaly-icon svg {
+      width: 16px;
+      height: 16px
+    }
+
+    .anomaly-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text)
+    }
+
+    .anomaly-desc {
+      font-size: 11px;
+      color: var(--text2);
+      line-height: 1.4;
+      margin-top: 2px
+    }
+
+    .anomaly-meta {
+      font-size: 10px;
+      font-family: var(--mono);
+      color: var(--text3);
+      margin-top: 5px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap
+    }
+
+    /* SENSOR */
+    .sensor-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px
+    }
+
+    .sensor-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      padding: 12px;
+      transition: all .2s
+    }
+
+    .sensor-card:hover {
+      border-color: var(--cyan);
+      transform: translateY(-1px)
+    }
+
+    .sensor-card.warn {
+      border-color: rgba(255, 208, 0, .3)
+    }
+
+    .sensor-card.err {
+      border-color: rgba(255, 61, 107, .3)
+    }
+
+    .sensor-name {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text);
+      margin: 6px 0 2px
+    }
+
+    .sensor-id {
+      font-size: 9px;
+      font-family: var(--mono);
+      color: var(--text3)
+    }
+
+    .sensor-metric {
+      font-family: var(--mono);
+      font-size: 18px;
+      font-weight: 500;
+      margin: 6px 0 2px
+    }
+
+    .progress-bar {
+      height: 4px;
+      background: var(--surface3);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 6px
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 2px
+    }
+
+    .progress-fill.good {
+      background: var(--green)
+    }
+
+    .progress-fill.warn {
+      background: var(--yellow)
+    }
+
+    .progress-fill.err {
+      background: var(--red)
+    }
+
+    /* PREDICTIVE */
+    .suggestion-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border2)
+    }
+
+    .suggestion-row:last-child {
+      border-bottom: none
+    }
+
+    .sug-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--surface3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0
+    }
+
+    .sug-info {
+      flex: 1;
+      min-width: 0
+    }
+
+    .sug-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text)
+    }
+
+    .sug-detail {
+      font-size: 10px;
+      color: var(--text2);
+      font-family: var(--mono);
+      margin-top: 2px
+    }
+
+    .approve-btn {
+      padding: 5px 12px;
+      background: var(--green-dim);
+      border: 1px solid rgba(16, 240, 144, .3);
+      color: var(--green);
+      border-radius: var(--r2);
+      font-family: var(--sans);
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .15s;
+      flex-shrink: 0
+    }
+
+    .approve-btn:hover {
+      background: rgba(16, 240, 144, .22)
+    }
+
+    .approve-btn.approved {
+      background: var(--surface2);
+      color: var(--text3);
+      border-color: var(--border);
+      cursor: default
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 12px 18px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: var(--shadow);
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all .3s ease;
+      pointer-events: none
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1
+    }
+
+    .toast.success {
+      border-color: rgba(16, 240, 144, .4);
+      background: rgba(16, 240, 144, .05)
+    }
+
+    .toast.error {
+      border-color: rgba(255, 61, 107, .4);
+      background: rgba(255, 61, 107, .05)
+    }
+
+    .toast svg {
+      width: 16px;
+      height: 16px
+    }
+
+    /* Confirm box */
+    .confirm-box {
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(4, 10, 22, .9);
+      backdrop-filter: blur(4px)
+    }
+
+    .confirm-box.open {
+      display: flex;
+      animation: mfade .15s ease
+    }
+
+    .confirm-inner {
+      background: var(--surface);
+      border: 1px solid rgba(255, 61, 107, .3);
+      border-radius: var(--r);
+      padding: 24px;
+      max-width: 360px;
+      width: 90%;
+      text-align: center
+    }
+
+    .confirm-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--red-dim);
+      border: 2px solid rgba(255, 61, 107, .3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px
+    }
+
+    .confirm-icon svg {
+      width: 22px;
+      height: 22px;
+      color: var(--red)
+    }
+
+    .confirm-title {
+      font-family: var(--display);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px
+    }
+
+    .confirm-msg {
+      font-size: 12px;
+      color: var(--text2);
+      line-height: 1.5;
+      margin-bottom: 18px
+    }
+
+    .confirm-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center
+    }
+
+    @media(max-width:1100px) {
+      :root {
+        --sidebar: 200px
+      }
+
+      .grid-4 {
+        grid-template-columns: 1fr 1fr
+      }
+
+      .sensor-grid {
+        grid-template-columns: 1fr 1fr
+      }
+
+      .cam-grid {
+        grid-template-columns: 1fr 1fr
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-logo">
+      <div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z" />
+          <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" />
+        </svg></div>
+      <div class="logo-txt">Inven-Smart <span>Panel Administrativo</span></div>
+    </div>
+    <div class="topbar-center">
+      <div class="live-indicator">
+        <div class="live-dot"></div>Sistema en línea · 12 sensores activos
+      </div>
+    </div>
+    <div class="topbar-time" id="clock">09:41:00</div>
+    <div class="topbar-notif" onclick="openNotifModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" />
+      </svg>
+      <div class="notif-dot"></div>
+    </div>
+    <div class="topbar-user">
+      <div class="topbar-av">MA</div>
+      <div class="topbar-name">María Andrade <span>Administradora General</span></div>
+    </div>
+  </div>
+
+  <div class="main-wrap">
+    <!-- SIDEBAR -->
+    <nav class="sidebar">
+      <div class="sb-section">Principal</div>
+      <div class="nav-btn active" id="nb-dashboard" onclick="showView('dashboard')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7" />
+          <rect x="14" y="3" width="7" height="7" />
+          <rect x="3" y="14" width="7" height="7" />
+          <rect x="14" y="14" width="7" height="7" />
+        </svg>Dashboard
+      </div>
+
+      <div class="sb-section">Módulos avanzados</div>
+      <div class="nav-btn" id="nb-bio" onclick="showView('bio')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path
+            d="M12 2C9.8 2 8 3.8 8 6c0 1.1.45 2.1 1.17 2.83M12 2c2.2 0 4 1.8 4 4 0 1.1-.45 2.1-1.17 2.83M10 14c-.55.65-.9 1.29-1 2M14 14c.55.65.9 1.29 1 2" />
+        </svg>
+        Biométrico &amp; Seguridad<span class="nav-badge red">2</span>
+      </div>
+      <div class="nav-btn" id="nb-predict" onclick="showView('predict')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+        </svg>
+        Analítica Predictiva
+      </div>
+      <div class="nav-btn" id="nb-audit" onclick="showView('audit')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+        </svg>
+        Auditoría &amp; Big Data<span class="nav-badge yellow">5</span>
+      </div>
+      <div class="nav-btn" id="nb-iot" onclick="showView('iot')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="7" width="20" height="14" rx="2" />
+          <path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16" />
+        </svg>
+        IoT &amp; Infraestructura
+      </div>
+
+      <div class="sb-section">Gestión</div>
+      <div class="nav-btn" id="nb-stock" onclick="showView('stock')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z" />
+          <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" />
+        </svg>
+        Stock &amp; Artículos
+      </div>
+      <div class="nav-btn" id="nb-users" onclick="showView('users')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
+        </svg>
+        Usuarios &amp; Operadores
+      </div>
+
+      <div class="sidebar-bottom">
+        <div class="nav-btn" style="color:rgba(255,61,107,.7)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
+          </svg>
+          Cerrar sesión
+        </div>
+      </div>
+    </nav>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- ══════════ DASHBOARD ══════════ -->
+      <div class="view active" id="view-dashboard">
+        <div class="page-header">
+          <div class="page-title">Resumen general <span>Vista consolidada · actualización en tiempo real</span></div>
+          <div class="page-actions"><button class="btn btn-ghost" onclick="showView('stock')"><svg viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z" />
+              </svg>Ver inventario</button><button class="btn btn-cyan" onclick="showView('bio')">Centro de
+              seguridad</button></div>
+        </div>
+        <div class="grid-4" style="margin-bottom:16px">
+          <div class="kpi">
+            <div class="kpi-label">SKUs activos</div>
+            <div class="kpi-val cyan" id="dash-skus">30</div>
+            <div class="kpi-sub">+2 agregados esta semana</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Valor en inventario</div>
+            <div class="kpi-val green" id="dash-valor">$0</div>
+            <div class="kpi-sub">Precio × stock actual</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Artículos críticos</div>
+            <div class="kpi-val red" id="dash-criticos">0</div>
+            <div class="kpi-sub">Stock bajo o agotado</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Operadores activos</div>
+            <div class="kpi-val yellow">4</div>
+            <div class="kpi-sub">Turno matutino</div>
+          </div>
+        </div>
+        <div class="widget">
+          <div class="widget-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+            </svg>Artículos con stock crítico</div>
+          <div id="dash-critical-table"></div>
+        </div>
+      </div>
+
+      <!-- ══════════ BIOMÉTRICO ══════════ -->
+      <div class="view" id="view-bio">
+        <div class="page-header">
+          <div class="page-title">Biométrico &amp; Seguridad IA <span>Validación facial · RFID vinculado · 6 cámaras
+              activas</span></div>
+          <div class="page-actions"><button class="btn btn-red"><svg viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+              </svg>2 Alertas</button><button class="btn btn-cyan">+ Registrar rostro</button></div>
+        </div>
+        <div class="grid-4" style="margin-bottom:16px">
+          <div class="kpi">
+            <div class="kpi-label">Accesos validados hoy</div>
+            <div class="kpi-val green">143</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Accesos denegados</div>
+            <div class="kpi-val red">4</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Confianza IA promedio</div>
+            <div class="kpi-val cyan">99.1%</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Alertas RFID</div>
+            <div class="kpi-val yellow">2</div>
+          </div>
+        </div>
+        <div class="grid-wide">
+          <div class="widget" style="margin-bottom:0">
+            <div class="widget-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" />
+                <circle cx="12" cy="13" r="4" />
+              </svg>Cámaras en vivo</div>
+            <div class="cam-grid">
+              <div class="cam-cell">
+                <div class="cam-scene">
+                  <div class="cam-person"></div>
+                  <div class="bbox" style="width:26px;height:44px;bottom:23%;left:19%;border-color:var(--green)">
+                    <div class="bbox-label" style="color:var(--green);background:rgba(16,240,144,.12)">JR001 · 99.2%
+                    </div>
+                  </div>
+                </div>
+                <div class="cam-label">CAM-01 · Entrada</div>
+                <div class="cam-rec">
+                  <div class="cam-rec-dot"></div>REC
+                </div>
+              </div>
+              <div class="cam-cell cam-alert">
+                <div class="cam-scene" style="background:linear-gradient(160deg,#1a0810,#2a0e1a)">
+                  <div class="cam-person" style="border-color:var(--red);background:rgba(255,61,107,.15)"></div>
+                  <div class="bbox" style="width:26px;height:44px;bottom:23%;left:19%;border-color:var(--red)">
+                    <div class="bbox-label" style="color:var(--red);background:rgba(255,61,107,.12)">DESCONOCIDO </div>
+                  </div>
+                  <div class="alert-overlay"></div>
+                </div>
+                <div class="cam-label" style="color:var(--red)">CAM-02 · Zona B2 </div>
+                <div class="cam-rec">
+                  <div class="cam-rec-dot"></div>REC
+                </div>
+              </div>
+              <div class="cam-cell">
+                <div class="cam-scene">
+                  <div class="cam-person" style="animation-duration:6s;left:50%"></div>
+                  <div class="bbox" style="width:26px;height:44px;bottom:23%;left:49%;border-color:var(--green)">
+                    <div class="bbox-label" style="color:var(--green);background:rgba(16,240,144,.12)">LM002 · 98.7%
+                    </div>
+                  </div>
+                </div>
+                <div class="cam-label">CAM-03 · Pasillo C</div>
+                <div class="cam-rec">
+                  <div class="cam-rec-dot"></div>REC
+                </div>
+              </div>
+              <div class="cam-cell">
+                <div class="cam-scene" style="background:linear-gradient(160deg,#081208,#0d1e0d)">
+                  <div
+                    style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--text3)">
+                    Sin movimiento</div>
+                </div>
+                <div class="cam-label">CAM-04 · Almacén Frío</div>
+                <div class="cam-rec">
+                  <div class="cam-rec-dot"></div>REC
+                </div>
+              </div>
+              <div class="cam-cell" style="border-color:rgba(255,208,0,.35)">
+                <div class="cam-scene" style="background:linear-gradient(160deg,#141008,#201a0e)">
+                  <div class="cam-person"
+                    style="animation-duration:3s;border-color:var(--yellow);background:rgba(255,208,0,.12)"></div>
+                  <div class="bbox" style="width:26px;height:44px;bottom:23%;left:19%;border-color:var(--yellow)">
+                    <div class="bbox-label" style="color:var(--yellow);background:rgba(255,208,0,.1)">RP003 · Fuera hrs
+                    </div>
+                  </div>
+                </div>
+                <div class="cam-label" style="color:var(--yellow)">CAM-05 · Zona D </div>
+                <div class="cam-rec">
+                  <div class="cam-rec-dot"></div>REC
+                </div>
+              </div>
+              <div class="cam-cell">
+                <div class="cam-scene">
+                  <div class="cam-person" style="animation-duration:5s;left:30%"></div>
+                  <div class="bbox" style="width:26px;height:44px;bottom:23%;left:29%;border-color:var(--green)">
+                    <div class="bbox-label" style="color:var(--green);background:rgba(16,240,144,.12)">AG004 · 97.4%
+                    </div>
+                  </div>
+                </div>
+                <div class="cam-label">CAM-06 · Salida</div>
+                <div class="cam-rec">
+                  <div class="cam-rec-dot"></div>REC
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="widget" style="margin-bottom:0">
+            <div class="widget-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>Log de identidad</div>
+            <div style="overflow-y:auto;max-height:320px" id="bio-log"></div>
+          </div>
+        </div>
+        <div class="widget" style="margin-top:16px">
+          <div class="widget-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>Gestión de permisos biométricos</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+            <div>
+              <div
+                style="font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--red);margin-bottom:8px">
+                 Zona de Riesgo</div>
+              <div id="perm-a"></div>
+            </div>
+            <div>
+              <div
+                style="font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--yellow);margin-bottom:8px">
+                 Almacén Central</div>
+              <div id="perm-b"></div>
+            </div>
+            <div>
+              <div
+                style="font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--cyan);margin-bottom:8px">
+                 Zona Administrativa</div>
+              <div id="perm-c"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════ ANALÍTICA PREDICTIVA ══════════ -->
+      <div class="view" id="view-predict">
+        <div class="page-header">
+          <div class="page-title">Analítica Predictiva <span>Modelos ML · Proyección de desabasto · Órdenes
+              sugeridas</span></div>
+          <div class="page-actions"><button class="btn btn-cyan">Exportar proyecciones</button></div>
+        </div>
+        <div class="grid-4" style="margin-bottom:16px">
+          <div class="kpi">
+            <div class="kpi-label">Días hasta desabasto</div>
+            <div class="kpi-val red">6</div>
+            <div class="kpi-sub">Filtro aceite #47</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Órdenes sugeridas</div>
+            <div class="kpi-val yellow">8</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Precisión del modelo</div>
+            <div class="kpi-val cyan">94.3%</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Ahorro proyectado</div>
+            <div class="kpi-val green">$18,400</div>
+          </div>
+        </div>
+        <div class="grid-wide">
+          <div class="widget" style="margin-bottom:0">
+            <div class="widget-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+              </svg>Proyección de desabasto — próximos 30 días</div>
+            <svg id="line-chart-svg" viewBox="0 0 700 180" style="width:100%;height:180px"></svg>
+            <div style="display:flex;gap:16px;margin-top:8px;font-size:10px;font-family:var(--mono)">
+              <div style="display:flex;align-items:center;gap:5px">
+                <div style="width:16px;height:2px;background:var(--cyan)"></div>Fusible 30A
+              </div>
+              <div style="display:flex;align-items:center;gap:5px">
+                <div style="width:16px;height:2px;background:var(--red)"></div>Filtro aceite #47
+              </div>
+              <div style="display:flex;align-items:center;gap:5px">
+                <div style="width:16px;height:2px;background:var(--yellow)"></div>O-Ring 50mm
+              </div>
+              <div style="display:flex;align-items:center;gap:5px">
+                <div style="width:16px;height:2px;background:var(--purple)"></div>Cojinete 6302
+              </div>
+            </div>
+          </div>
+          <div class="widget" style="margin-bottom:0">
+            <div class="widget-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                <line x1="3" y1="6" x2="21" y2="6" />
+              </svg>Asistente de compras automático</div>
+            <div id="predict-suggestions"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════ AUDITORÍA ══════════ -->
+      <div class="view" id="view-audit">
+        <div class="page-header">
+          <div class="page-title">Auditoría &amp; Big Data <span>Patrones · Anomalías · Timeline ISO 9001</span></div>
+          <div class="page-actions"><button class="btn btn-ghost">Exportar ISO 9001</button><button
+              class="btn btn-cyan">Generar reporte</button></div>
+        </div>
+        <div class="grid-4" style="margin-bottom:16px">
+          <div class="kpi">
+            <div class="kpi-label">Alertas robo hormiga</div>
+            <div class="kpi-val red">3</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Patrones sospechosos</div>
+            <div class="kpi-val yellow">5</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Eventos auditados hoy</div>
+            <div class="kpi-val cyan">1,847</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Score de integridad</div>
+            <div class="kpi-val green">96.4%</div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="widget">
+            <div class="widget-title" style="color:var(--red)"> Pérdida de Material — RFID fuera de perímetro</div>
+            <div class="anomaly-card">
+              <div class="anomaly-icon red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  style="color:var(--red)">
+                  <path
+                    d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+                </svg></div>
+              <div>
+                <div class="anomaly-title">RFID #B7F21 — Esmeriladora 4.5" sin orden</div>
+                <div class="anomaly-desc">Cruzó perímetro Zona A · 22:14h · Sin biometría.</div>
+                <div class="anomaly-meta"><span class="badge badge-red">CRÍTICO</span><span>CAM-06</span></div>
+              </div>
+            </div>
+            <div class="anomaly-card">
+              <div class="anomaly-icon red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  style="color:var(--red)">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="8" x2="12" y2="12" />
+                </svg></div>
+              <div>
+                <div class="anomaly-title">RFID #C3A09 — Torquímetro · Movimiento irregular</div>
+                <div class="anomaly-desc">7 lecturas en zonas no asignadas · 18:00–19:30h</div>
+                <div class="anomaly-meta"><span class="badge badge-yellow">ALERTA</span><span>Pasillo D→B</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="widget">
+            <div class="widget-title" style="color:var(--yellow)"> Patrones sospechosos por operador</div>
+            <div class="table-wrap" style="max-height:220px">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Operador</th>
+                    <th>Anomalía</th>
+                    <th>Riesgo</th>
+                    <th>Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="td-name">RP003</td>
+                    <td style="color:var(--text)">Accesos fuera de horario</td>
+                    <td><span class="badge badge-red">Alto</span></td>
+                    <td><button class="btn btn-red btn-xs">Investigar</button></td>
+                  </tr>
+                  <tr>
+                    <td class="td-name">AG004</td>
+                    <td style="color:var(--text)">Ruta fuera de zona asignada</td>
+                    <td><span class="badge badge-yellow">Medio</span></td>
+                    <td><button class="btn btn-ghost btn-xs">Revisar</button></td>
+                  </tr>
+                  <tr>
+                    <td class="td-name">Usuario #12</td>
+                    <td style="color:var(--text)">Biometría no reconocida</td>
+                    <td><span class="badge badge-red">Crítico</span></td>
+                    <td><button class="btn btn-red btn-xs">Bloquear</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="widget">
+          <div class="widget-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+            </svg>Timeline inmutable — ESM-4.5 (RFID #B7F21) <span style="margin-left:auto"><span
+                class="badge badge-cyan">ISO 9001</span></span></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px">
+            <div>
+              <div style="font-size:9px;color:var(--text3);font-family:var(--mono);margin-bottom:10px">ÚLTIMAS 24 HORAS
+              </div>
+              <div class="timeline">
+                <div class="tl-item">
+                  <div class="tl-dot red"></div>
+                  <div class="tl-time">22:14:38</div>
+                  <div class="tl-event" style="color:var(--red)"> Salida no autorizada</div>
+                  <div class="tl-detail">Sin orden ni biometría vinculada.</div>
+                </div>
+                <div class="tl-item">
+                  <div class="tl-dot yellow"></div>
+                  <div class="tl-time">19:47:12</div>
+                  <div class="tl-event">Uso registrado</div>
+                  <div class="tl-detail">Operador RP003 · 1h 32min.</div>
+                </div>
+                <div class="tl-item">
+                  <div class="tl-dot green"></div>
+                  <div class="tl-time">18:15:03</div>
+                  <div class="tl-event">Salida autorizada</div>
+                  <div class="tl-detail">JR001 · Orden OS-2026-087.</div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:9px;color:var(--text3);font-family:var(--mono);margin-bottom:10px">ÚLTIMOS 7 DÍAS
+              </div>
+              <div class="timeline">
+                <div class="tl-item">
+                  <div class="tl-dot green"></div>
+                  <div class="tl-time">2026-05-10</div>
+                  <div class="tl-event">Mantenimiento preventivo</div>
+                  <div class="tl-detail">Técnico LM002 · Sin observaciones.</div>
+                </div>
+                <div class="tl-item">
+                  <div class="tl-dot"></div>
+                  <div class="tl-time">2026-05-09</div>
+                  <div class="tl-event">12 usos registrados</div>
+                  <div class="tl-detail">4 operadores. Todos autorizados.</div>
+                </div>
+                <div class="tl-item">
+                  <div class="tl-dot yellow"></div>
+                  <div class="tl-time">2026-05-07</div>
+                  <div class="tl-event">Discrepancia de ubicación</div>
+                  <div class="tl-detail">RFID en Pasillo B. Corrección manual.</div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:9px;color:var(--text3);font-family:var(--mono);margin-bottom:10px">HISTORIAL
+                COMPLETO</div>
+              <div class="timeline">
+                <div class="tl-item">
+                  <div class="tl-dot green"></div>
+                  <div class="tl-time">2026-01-15</div>
+                  <div class="tl-event">Alta en sistema</div>
+                  <div class="tl-detail">$780 MXN · Garantía 12 meses.</div>
+                </div>
+                <div class="tl-item">
+                  <div class="tl-dot"></div>
+                  <div class="tl-time">2026-01-15</div>
+                  <div class="tl-event">Tag RFID #B7F21 asignado</div>
+                </div>
+                <div class="tl-item">
+                  <div class="tl-dot"></div>
+                  <div class="tl-time">2026-05-12</div>
+                  <div class="tl-event">Total: 247 movimientos</div>
+                  <div class="tl-detail">118 días en servicio.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════ IoT ══════════ -->
+      <div class="view" id="view-iot">
+        <div class="page-header">
+          <div class="page-title">IoT &amp; Infraestructura <span>Sensores RFID · Cámaras · Energía solar</span></div>
+          <div class="page-actions"><button class="btn btn-cyan">Diagnóstico completo</button></div>
+        </div>
+        <div class="grid-4" style="margin-bottom:16px">
+          <div class="kpi">
+            <div class="kpi-label">Dispositivos en línea</div>
+            <div class="kpi-val green">18/20</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Latencia promedio</div>
+            <div class="kpi-val cyan">4.2 ms</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Uptime sistema</div>
+            <div class="kpi-val green">99.96%</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Ahorro solar</div>
+            <div class="kpi-val yellow">38%</div>
+          </div>
+        </div>
+
+        <div class="grid-wide" style="margin-bottom:16px">
+          <div class="widget" style="margin-bottom:0">
+            <div class="widget-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+              </svg>Monitoreo de Energía: Solar vs CFE</div>
+            <svg id="energy-chart-svg" viewBox="0 0 200 200" style="width:180px;height:180px;margin:0 auto;display:block"></svg>
+            <div style="display:flex;gap:16px;margin-top:8px;font-size:10px;font-family:var(--mono)">
+              <div style="display:flex;align-items:center;gap:5px">
+                <div style="width:16px;height:2px;background:var(--yellow)"></div>Paneles Solares (kW)
+              </div>
+              <div style="display:flex;align-items:center;gap:5px">
+                <div style="width:16px;height:2px;background:var(--cyan)"></div>Red CFE (kW)
+              </div>
+            </div>
+          </div>
+          <div class="widget" style="margin-bottom:0;display:flex;flex-direction:column;justify-content:space-around">
+            <div class="widget-title" style="margin-bottom:0">Datos Energéticos en Vivo</div>
+            <div class="kpi" style="border:none;padding:8px 0;margin-bottom:0;border-radius:0">
+              <div class="kpi-label">Generación Solar Actual</div>
+              <div class="kpi-val yellow">14.5 kW</div>
+              <div class="kpi-sub">Radiación óptima</div>
+            </div>
+            <div class="kpi"
+              style="border:none;padding:8px 0;margin-bottom:0;border-top:1px solid var(--border);border-radius:0">
+              <div class="kpi-label">Consumo CFE Actual</div>
+              <div class="kpi-val cyan">6.2 kW</div>
+              <div class="kpi-sub">Ahorro estimado del 70%</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="widget">
+          <div class="widget-title">Estado de sensores &amp; lectores</div>
+          <div class="sensor-grid" id="sensor-grid"></div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════
+     STOCK & ARTÍCULOS
+══════════════════════════════ -->
+      <div class="view" id="view-stock">
+        <div class="page-header">
+          <div class="page-title">Stock &amp; Artículos <span>Gestión completa de inventario · Precios ·
+              Proveedores</span></div>
+          <div class="page-actions">
+            <button class="btn btn-ghost" onclick="openStockFilter()"><svg viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+              </svg>Filtros</button>
+            <button class="btn btn-ghost" onclick="exportStock()"><svg viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>Exportar</button>
+            <button class="btn btn-cyan" onclick="openCreateItem()"><svg viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>Nuevo artículo</button>
+          </div>
+        </div>
+        <!-- Stats rápidas -->
+        <div class="grid-4" style="margin-bottom:14px" id="stock-kpis"></div>
+        <!-- Toolbar búsqueda + filtros -->
+        <div class="toolbar">
+          <div class="search-input-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input id="stock-search" placeholder="Buscar por nombre, SKU, categoría…" oninput="renderStockTable()">
+          </div>
+          <div class="filter-chip active" id="fc-todos" onclick="setStockFilter('todos',this)">Todos</div>
+          <div class="filter-chip" id="fc-electrico" onclick="setStockFilter('electrico',this)">Eléctrico</div>
+          <div class="filter-chip" id="fc-mecanico" onclick="setStockFilter('mecanico',this)">Mecánico</div>
+          <div class="filter-chip" id="fc-hidraulico" onclick="setStockFilter('hidraulico',this)">Hidráulico</div>
+          <div class="filter-chip" id="fc-seguridad" onclick="setStockFilter('seguridad',this)">Seguridad</div>
+          <div class="filter-chip red-chip" id="fc-critico" onclick="setStockFilter('critico',this)"> Críticos</div>
+        </div>
+        <div class="widget" style="padding:0;overflow:hidden">
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>SKU</th>
+                  <th>Artículo</th>
+                  <th>Categoría</th>
+                  <th>Stock</th>
+                  <th>Mín.</th>
+                  <th>Precio unit.</th>
+                  <th>Valor total</th>
+                  <th>Ubicación</th>
+                  <th>Estado</th>
+                  <th style="text-align:center">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="stock-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div
+          style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;font-size:11px;color:var(--text2)">
+          <span id="stock-count">0 artículos</span>
+          <span id="stock-total-val" style="font-family:var(--mono);color:var(--green)"></span>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════
+     USUARIOS & OPERADORES
+══════════════════════════════ -->
+      <div class="view" id="view-users">
+        <div class="page-header">
+          <div class="page-title">Usuarios &amp; Operadores <span>Gestión de personal · Historial de movimientos ·
+              Detalles</span></div>
+          <div class="page-actions">
+            <button class="btn btn-cyan" onclick="openCreateUser()"><svg viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>Nuevo operador</button>
+          </div>
+        </div>
+        <div class="grid-3" style="margin-bottom:16px">
+          <div class="kpi">
+            <div class="kpi-label">Total registrados</div>
+            <div class="kpi-val cyan" id="users-total">0</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Activos hoy</div>
+            <div class="kpi-val green">4</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Movimientos hoy</div>
+            <div class="kpi-val yellow">247</div>
+          </div>
+        </div>
+        <div class="toolbar">
+          <div class="search-input-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input id="user-search" placeholder="Buscar por nombre, matrícula, rol…" oninput="renderUsersTable()">
+          </div>
+          <div class="filter-chip active" id="uf-todos" onclick="setUserFilter('todos',this)">Todos</div>
+          <div class="filter-chip" id="uf-operador" onclick="setUserFilter('operador',this)">Operadores</div>
+          <div class="filter-chip" id="uf-supervisor" onclick="setUserFilter('supervisor',this)">Supervisores</div>
+          <div class="filter-chip" id="uf-admin" onclick="setUserFilter('admin',this)">Administradores</div>
+        </div>
+        <div class="widget" style="padding:0;overflow:hidden">
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Operador</th>
+                  <th>Matrícula</th>
+                  <th>Rol</th>
+                  <th>Turno</th>
+                  <th>Zonas</th>
+                  <th>Movimientos</th>
+                  <th>Último acceso</th>
+                  <th>Estado</th>
+                  <th style="text-align:center">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="users-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--text2);margin-top:10px" id="users-count"></div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main-wrap -->
+
+  <!-- ════════════════════════════════════════
+     MODAL: EDITAR / CREAR ARTÍCULO
+════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-item">
+    <div class="modal-box md">
+      <div class="modal-header">
+        <div class="modal-title" id="modal-item-title">Nuevo artículo</div>
+        <div class="modal-close" onclick="closeModal('modal-item')"><svg viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg></div>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="item-editing-id">
+        <div class="form-row cols-2">
+          <div class="form-group">
+            <div class="form-label">SKU *</div><input class="form-control" id="item-sku" placeholder="Ej: ROD-6205">
+          </div>
+          <div class="form-group">
+            <div class="form-label">Nombre *</div><input class="form-control" id="item-name"
+              placeholder="Nombre del artículo">
+          </div>
+        </div>
+        <div class="form-row cols-3">
+          <div class="form-group">
+            <div class="form-label">Categoría</div>
+            <select class="form-control form-select" id="item-cat">
+              <option value="mecanico">Mecánico</option>
+              <option value="electrico">Eléctrico</option>
+              <option value="hidraulico">Hidráulico</option>
+              <option value="seguridad">Seguridad</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <div class="form-label">Emoji / ícono</div><input class="form-control" id="item-emoji" placeholder=""
+              style="font-size:18px">
+          </div>
+          <div class="form-group">
+            <div class="form-label">Ubicación</div><input class="form-control" id="item-loc"
+              placeholder="Pasillo A · E1 · Pos.2">
+          </div>
+        </div>
+        <div class="form-row cols-3">
+          <div class="form-group">
+            <div class="form-label">Stock actual *</div><input class="form-control" id="item-stock" type="number"
+              min="0" placeholder="0">
+          </div>
+          <div class="form-group">
+            <div class="form-label">Stock mínimo *</div><input class="form-control" id="item-min" type="number" min="1"
+              placeholder="10">
+          </div>
+          <div class="form-group">
+            <div class="form-label">Precio unitario (MXN) *</div><input class="form-control" id="item-precio"
+              type="number" step="0.01" min="0" placeholder="0.00">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <div class="form-label">Proveedor habitual</div><input class="form-control" id="item-proveedor"
+              placeholder="Nombre del proveedor">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('modal-item')">Cancelar</button>
+        <button class="btn btn-cyan" onclick="saveItem()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
+            <polyline points="17 21 17 13 7 13 7 21" />
+            <polyline points="7 3 7 8 15 8" />
+          </svg>Guardar artículo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+     MODAL: TICKET DE COMPRA
+════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-ticket">
+    <div class="modal-box md">
+      <div class="modal-header">
+        <div class="modal-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            style="width:16px;height:16px;color:var(--yellow);display:inline;vertical-align:middle;margin-right:6px">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="12" y1="18" x2="12" y2="12" />
+            <line x1="9" y1="15" x2="15" y2="15" />
+          </svg>
+          Ticket de compra — <span id="tk-title"></span>
+        </div>
+        <div class="modal-close" onclick="closeModal('modal-ticket')"><svg viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg></div>
+      </div>
+      <div class="modal-body" id="ticket-form-body">
+        <div
+          style="display:flex;align-items:center;justify-content:space-between;background:var(--cyan-dim);border:1px solid rgba(0,212,255,.2);border-radius:var(--r2);padding:10px 14px;margin-bottom:16px">
+          <span style="font-size:11px;color:var(--text2)">No. de ticket</span>
+          <strong style="font-family:var(--mono);color:var(--cyan);font-size:13px" id="tk-num">TC-2026-XXXX</strong>
+        </div>
+        <div
+          style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r2);padding:12px 14px;margin-bottom:16px;display:flex;align-items:center;gap:12px">
+          <div
+            style="width:38px;height:38px;border-radius:8px;background:var(--yellow-dim);border:1px solid rgba(255,208,0,.3);display:flex;align-items:center;justify-content:center;font-size:18px"
+            id="tk-emoji"></div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--text)" id="tk-product">—</div>
+            <div style="font-size:10px;color:var(--text3);font-family:var(--mono)" id="tk-sku">—</div>
+            <div style="font-size:10px;color:var(--yellow);font-weight:700;margin-top:3px" id="tk-stock-warn">—</div>
+          </div>
+        </div>
+        <div class="form-section-title">Datos del proveedor</div>
+        <div class="form-row cols-2">
+          <div class="form-group">
+            <div class="form-label">Proveedor</div><input class="form-control" id="tk-proveedor">
+          </div>
+          <div class="form-group">
+            <div class="form-label">Teléfono</div><input class="form-control" id="tk-tel">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <div class="form-label">Correo electrónico</div><input class="form-control" id="tk-email" type="email">
+          </div>
+        </div>
+        <div class="form-section-title">Detalles del pedido</div>
+        <div class="form-row cols-2">
+          <div class="form-group">
+            <div class="form-label">Fecha de pedido</div><input class="form-control" id="tk-fecha" type="date">
+          </div>
+          <div class="form-group">
+            <div class="form-label">Entrega estimada</div><input class="form-control" id="tk-entrega" type="date">
+          </div>
+        </div>
+        <div class="form-row cols-3">
+          <div class="form-group">
+            <div class="form-label">Cantidad</div><input class="form-control" id="tk-cantidad" type="number" min="1"
+              value="50" oninput="recalcTicket()">
+          </div>
+          <div class="form-group">
+            <div class="form-label">Precio unitario (MXN)</div><input class="form-control" id="tk-precio-unit"
+              type="number" step="0.01" oninput="recalcTicket()">
+          </div>
+          <div class="form-group">
+            <div class="form-label">Forma de pago</div>
+            <select class="form-control form-select" id="tk-pago">
+              <option>Transferencia bancaria</option>
+              <option>Cheque</option>
+              <option>Crédito 30 días</option>
+              <option>Crédito 60 días</option>
+              <option>Efectivo</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <div class="form-label">Observaciones</div><textarea class="form-control" id="tk-obs" rows="2"
+              placeholder="Instrucciones especiales…" style="resize:none"></textarea>
+          </div>
+        </div>
+        <div class="ticket-summary">
+          <div class="ts-header"> Resumen del pedido</div>
+          <div class="ts-row">
+            <div class="ts-label">Subtotal</div>
+            <div class="ts-value" id="ts-sub">$0.00</div>
+          </div>
+          <div class="ts-row iva">
+            <div class="ts-label">IVA (16%)</div>
+            <div class="ts-value" id="ts-iva">$0.00</div>
+          </div>
+          <div class="ts-row">
+            <div class="ts-label">Descuento proveedor</div>
+            <div class="ts-value">— $0.00</div>
+          </div>
+          <div class="ts-row total">
+            <div class="ts-label">Total a pagar</div>
+            <div class="ts-value" id="ts-total">$0.00</div>
+          </div>
+        </div>
+      </div>
+      <!-- Confirm state -->
+      <div
+        style="display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px;text-align:center;gap:12px"
+        id="ticket-confirm-body">
+        <div
+          style="width:64px;height:64px;border-radius:50%;background:var(--green-dim);border:2px solid rgba(16,240,144,.4);display:flex;align-items:center;justify-content:center;box-shadow:0 0 24px rgba(16,240,144,.2)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            style="width:30px;height:30px;color:var(--green)">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </div>
+        <div style="font-family:var(--display);font-size:18px;font-weight:700;color:var(--green)">¡Ticket generado!
+        </div>
+        <div style="font-size:12px;color:var(--text2)">Enviado al área de compras y al proveedor por correo.</div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--text3)" id="tc-confirm-id"></div>
+      </div>
+      <div class="modal-footer" id="ticket-footer">
+        <button class="btn btn-ghost" onclick="closeModal('modal-ticket')">Cancelar</button>
+        <button class="btn btn-cyan" onclick="submitTicket()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <path d="M22 2L11 13" />
+            <polygon points="22 2 15 22 11 13 2 9 22 2" />
+          </svg>Generar y enviar ticket</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+     MODAL: DETALLE DE USUARIO
+════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-user">
+    <div class="modal-box lg" style="max-height:90vh;overflow:hidden;display:flex;flex-direction:column">
+      <div class="modal-header">
+        <div class="modal-title" id="modal-user-title">Detalle de operador</div>
+        <div class="modal-close" onclick="closeModal('modal-user')"><svg viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg></div>
+      </div>
+      <div class="modal-body" id="user-detail-body"></div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('modal-user')">Cerrar</button>
+        <button class="btn btn-yellow" id="user-edit-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+          </svg>Editar usuario</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+     MODAL: CREAR / EDITAR USUARIO
+════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-user-form">
+    <div class="modal-box sm">
+      <div class="modal-header">
+        <div class="modal-title" id="modal-uform-title">Nuevo operador</div>
+        <div class="modal-close" onclick="closeModal('modal-user-form')"><svg viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg></div>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="uf-editing-id">
+        <div class="form-row cols-2">
+          <div class="form-group">
+            <div class="form-label">Nombre completo *</div><input class="form-control" id="uf-name"
+              placeholder="Nombre">
+          </div>
+          <div class="form-group">
+            <div class="form-label">Matrícula *</div><input class="form-control" id="uf-mat" placeholder="XX001">
+          </div>
+        </div>
+        <div class="form-row cols-2">
+          <div class="form-group">
+            <div class="form-label">Rol</div>
+            <select class="form-control form-select" id="uf-rol">
+              <option value="operador">Operador</option>
+              <option value="supervisor">Supervisor</option>
+              <option value="admin">Administrador</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <div class="form-label">Turno</div>
+            <select class="form-control form-select" id="uf-turno">
+              <option>Matutino</option>
+              <option>Vespertino</option>
+              <option>Nocturno</option>
+              <option>Día libre</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <div class="form-label">Zonas de acceso</div><input class="form-control" id="uf-zonas"
+              placeholder="A, B, C, D">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <div class="form-label">Contraseña inicial</div><input class="form-control" id="uf-pass" type="password"
+              placeholder="••••••">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('modal-user-form')">Cancelar</button>
+        <button class="btn btn-cyan" onclick="saveUser()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
+          </svg>Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  
+<!-- ══════════════════════════════════════
+     MODAL — ALERTAS RECIENTES
+══════════════════════════════════════ -->
+
+<!-- ══════════════════════════════════════
+     MODAL — ALERTAS RECIENTES
+══════════════════════════════════════ -->
+<div class="modal-overlay" id="notifModal" onclick="closeNotifIfBackdrop(event)">
+  <div class="modal-box sm" style="max-height:80svh;">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;color:var(--accent-red,#ff3d6b)"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+        <span class="modal-title" style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;color:var(--text)">Alertas Recientes</span>
+      </div>
+      <div class="modal-close" onclick="closeNotifModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+    </div>
+    <div class="modal-body" style="padding:16px 20px;">
+      <div style="display:flex; gap:12px; padding:12px 0; border-bottom:1px solid var(--border);">
+        <div style="width:3px; border-radius:2px; flex-shrink:0; min-height:40px; background:var(--accent-red,#ff3d6b);"></div>
+        <div>
+          <div style="font-size:13px; font-weight:700; color:var(--text); margin-bottom:2px;">Salida no autorizada</div>
+          <div style="font-size:11px; color:var(--text2); line-height:1.4;">Llave de torque · Pasillo B</div>
+          <div style="font-size:10px; color:var(--text3); margin-top:4px;">Hace 5 min</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:12px; padding:12px 0;">
+        <div style="width:3px; border-radius:2px; flex-shrink:0; min-height:40px; background:var(--accent,#3b82f6);"></div>
+        <div>
+          <div style="font-size:13px; font-weight:700; color:var(--text); margin-bottom:2px;">Comportamiento extraño</div>
+          <div style="font-size:11px; color:var(--text2); line-height:1.4;">Usuario #12 · accesos fuera de horario</div>
+          <div style="font-size:10px; color:var(--text3); margin-top:4px;">Ayer 22:43</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM DELETE -->
+  <div class="confirm-box" id="confirm-box">
+    <div class="confirm-inner">
+      <div class="confirm-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="3 6 5 6 21 6" />
+          <path d="M19 6l-1 14H6L5 6" />
+          <path d="M10 11v6M14 11v6" />
+          <path d="M9 6V4h6v2" />
+        </svg></div>
+      <div class="confirm-title">Eliminar artículo</div>
+      <div class="confirm-msg" id="confirm-msg">¿Estás seguro? Esta acción no se puede deshacer.</div>
+      <div class="confirm-actions">
+        <button class="btn btn-ghost" onclick="closeConfirm()">Cancelar</button>
+        <button class="btn btn-red" id="confirm-ok-btn">Eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="20 6 9 17 4 12" />
+    </svg><span id="toast-msg"></span></div>
+
+  <script>
+
+  function openNotifModal() {
+    const m = document.getElementById('notifModal');
+    if (m) {
+      m.classList.add('open');
+      m.style.display = 'flex';
+    }
+  }
+  function closeNotifModal() {
+    const m = document.getElementById('notifModal');
+    if (m) {
+      m.classList.remove('open');
+      setTimeout(() => { m.style.display = 'none'; }, 200);
+    }
+  }
+  function closeNotifIfBackdrop(e) {
+    if (e.target === document.getElementById('notifModal')) closeNotifModal();
+  }
+
+    /* ═══════════════════════════════════
+       DATA
+    ═══════════════════════════════════ */
+    let INVENTORY = [
+      { id: 1, sku: 'ROD-6205', name: 'Rodamiento 6205-2RS', cat: 'mecanico', emoji: '', stock: 8, min: 20, loc: 'Pasillo D · E2 · Pos.4', precio: 85.50, proveedor: 'Rodamientos Morelia S.A.' },
+      { id: 2, sku: 'FUS-030A', name: 'Fusible 30A', cat: 'electrico', emoji: '', stock: 4, min: 20, loc: 'Pasillo A · E1 · Pos.2', precio: 18.50, proveedor: 'Electro Distribuidora Morelia S.C.' },
+      { id: 3, sku: 'FLT-047', name: 'Filtro aceite #47', cat: 'hidraulico', emoji: '', stock: 0, min: 15, loc: 'Pasillo C · E5 · Pos.1', precio: 42.00, proveedor: 'Filtros Industriales del Norte S.A.' },
+      { id: 4, sku: 'LLV-IMP', name: 'Llave de impacto 1/2"', cat: 'mecanico', emoji: '', stock: 12, min: 5, loc: 'Pasillo B · E3 · Pos.6', precio: 650.00, proveedor: 'Herramientas Pro MX' },
+      { id: 5, sku: 'CAB-120', name: 'Cable THW 12 AWG', cat: 'electrico', emoji: '', stock: 150, min: 50, loc: 'Pasillo A · E4 · Pos.3', precio: 9.80, proveedor: 'Cablemex S.A. de C.V.' },
+      { id: 6, sku: 'BRK-010', name: 'Breaker 10A bifásico', cat: 'electrico', emoji: '', stock: 22, min: 10, loc: 'Pasillo A · E2 · Pos.5', precio: 185.00, proveedor: 'Electro Distribuidora Morelia S.C.' },
+      { id: 7, sku: 'ORG-050', name: 'O-Ring 50mm', cat: 'hidraulico', emoji: '', stock: 7, min: 25, loc: 'Pasillo C · E3 · Pos.2', precio: 4.20, proveedor: 'Sellos Hidráulicos del Bajío' },
+      { id: 8, sku: 'COJ-6302', name: 'Cojinete 6302', cat: 'mecanico', emoji: '', stock: 9, min: 30, loc: 'Pasillo D · E1 · Pos.1', precio: 72.00, proveedor: 'Rodamientos Morelia S.A.' },
+      { id: 9, sku: 'GUA-SEG', name: 'Guantes de seguridad (par)', cat: 'seguridad', emoji: '', stock: 45, min: 20, loc: 'Pasillo B · E5 · Pos.4', precio: 38.00, proveedor: 'Seguridad Industrial MX' },
+      { id: 10, sku: 'CAS-AMA', name: 'Casco amarillo clase B', cat: 'seguridad', emoji: '', stock: 18, min: 10, loc: 'Pasillo B · E5 · Pos.1', precio: 120.00, proveedor: 'Seguridad Industrial MX' },
+      { id: 11, sku: 'TRN-24V', name: 'Transformador 24V', cat: 'electrico', emoji: '', stock: 6, min: 4, loc: 'Pasillo A · E3 · Pos.2', precio: 890.00, proveedor: 'Electromax S.A.' },
+      { id: 12, sku: 'BOL-10L', name: 'Bomba hidráulica 10L', cat: 'hidraulico', emoji: '', stock: 3, min: 2, loc: 'Pasillo C · E1 · Pos.1', precio: 4200.00, proveedor: 'Hidrosistemas del Centro' },
+      { id: 13, sku: 'SEN-TEMP', name: 'Sensor temperatura PT100', cat: 'electrico', emoji: '', stock: 14, min: 5, loc: 'Pasillo A · E5 · Pos.6', precio: 320.00, proveedor: 'Sensores Industriales MX' },
+      { id: 14, sku: 'ESM-4.5', name: 'Esmeriladora 4.5"', cat: 'mecanico', emoji: '', stock: 5, min: 2, loc: 'Pasillo D · E4 · Pos.3', precio: 780.00, proveedor: 'Herramientas Pro MX' },
+      { id: 15, sku: 'LEN-SEG', name: 'Lentes de seguridad', cat: 'seguridad', emoji: '', stock: 60, min: 30, loc: 'Pasillo B · E5 · Pos.3', precio: 22.50, proveedor: 'Seguridad Industrial MX' },
+      { id: 16, sku: 'MAG-150', name: 'Manómetro 0-150 PSI', cat: 'hidraulico', emoji: '', stock: 8, min: 5, loc: 'Pasillo C · E4 · Pos.2', precio: 195.00, proveedor: 'Instrumentos Hidráulicos S.A.' },
+      { id: 17, sku: 'PLC-S7', name: 'PLC Siemens S7-1200', cat: 'electrico', emoji: '', stock: 2, min: 1, loc: 'Pasillo A · E1 · Pos.1', precio: 12500.00, proveedor: 'Siemens México S.A.' },
+      { id: 18, sku: 'COR-INO', name: 'Correa transportadora', cat: 'mecanico', emoji: '', stock: 4, min: 3, loc: 'Pasillo D · E3 · Pos.5', precio: 1800.00, proveedor: 'Bandas Industriales MX' },
+      { id: 19, sku: 'RES-10K', name: 'Resistencia 10kΩ (×100)', cat: 'electrico', emoji: '', stock: 30, min: 10, loc: 'Pasillo A · E5 · Pos.2', precio: 45.00, proveedor: 'Electrónica Industrial S.C.' },
+      { id: 20, sku: 'VAL-SOL', name: 'Válvula solenoide 1/2"', cat: 'hidraulico', emoji: '', stock: 11, min: 8, loc: 'Pasillo C · E2 · Pos.4', precio: 380.00, proveedor: 'Hidrosistemas del Centro' },
+      { id: 21, sku: 'EAR-SEG', name: 'Tapones auditivos (×50)', cat: 'seguridad', emoji: '', stock: 12, min: 10, loc: 'Pasillo B · E4 · Pos.2', precio: 85.00, proveedor: 'Seguridad Industrial MX' },
+      { id: 22, sku: 'ENG-IND', name: 'Engrasador industrial 400g', cat: 'mecanico', emoji: '', stock: 16, min: 8, loc: 'Pasillo D · E5 · Pos.1', precio: 62.00, proveedor: 'Lubricantes del Centro' },
+      { id: 23, sku: 'FUS-005', name: 'Fusible 5A (×10)', cat: 'electrico', emoji: '', stock: 55, min: 20, loc: 'Pasillo A · E1 · Pos.3', precio: 35.00, proveedor: 'Electro Distribuidora Morelia S.C.' },
+      { id: 24, sku: 'TUB-PVC', name: 'Tubo PVC 2" × 3m', cat: 'hidraulico', emoji: '', stock: 28, min: 15, loc: 'Pasillo C · E5 · Pos.5', precio: 95.00, proveedor: 'Hidrosistemas del Centro' },
+      { id: 25, sku: 'CAL-VER', name: 'Calibrador Vernier digital', cat: 'mecanico', emoji: '', stock: 7, min: 3, loc: 'Pasillo D · E2 · Pos.6', precio: 450.00, proveedor: 'Instrumento Mecánico MX' },
+      { id: 26, sku: 'BOT-HER', name: 'Botín dieléctrico t.27', cat: 'seguridad', emoji: '', stock: 8, min: 5, loc: 'Pasillo B · E3 · Pos.1', precio: 480.00, proveedor: 'Seguridad Industrial MX' },
+      { id: 27, sku: 'MOT-1HP', name: 'Motor eléctrico 1HP 220V', cat: 'electrico', emoji: '', stock: 3, min: 2, loc: 'Pasillo A · E4 · Pos.1', precio: 3200.00, proveedor: 'Motores Industriales del Bajío' },
+      { id: 28, sku: 'CIN-ARN', name: 'Cinturón / arnés seguridad', cat: 'seguridad', emoji: '', stock: 10, min: 5, loc: 'Pasillo B · E4 · Pos.5', precio: 620.00, proveedor: 'Seguridad Industrial MX' },
+      { id: 29, sku: 'ACE-HID', name: 'Aceite hidráulico ISO 46 20L', cat: 'hidraulico', emoji: '', stock: 6, min: 5, loc: 'Pasillo C · E1 · Pos.3', precio: 680.00, proveedor: 'Lubricantes del Centro' },
+      { id: 30, sku: 'TOR-IMP', name: 'Torquímetro 1/2" 20-200Nm', cat: 'mecanico', emoji: '', stock: 4, min: 2, loc: 'Pasillo D · E3 · Pos.2', precio: 1250.00, proveedor: 'Herramientas Pro MX' },
+    ];
+    let nextId = 31;
+
+    let USERS = [
+      {
+        id: 1, name: 'Juan Carlos Reyes González', mat: 'JR001', rol: 'operador', turno: 'Matutino', zonas: 'A,B,C,D', color: '#2563eb', status: 'activo',
+        movimientos: [
+          { tipo: 'entrada', item: 'Rodamiento 6205-2RS', sku: 'ROD-6205', fecha: '2026-05-12 09:22', zona: 'Pasillo D' },
+          { tipo: 'salida', item: 'Llave de impacto 1/2"', sku: 'LLV-IMP', fecha: '2026-05-12 08:15', zona: 'Pasillo B' },
+          { tipo: 'entrada', item: 'Fusible 30A', sku: 'FUS-030A', fecha: '2026-05-11 17:40', zona: 'Pasillo A' },
+          { tipo: 'salida', item: 'Filtro aceite #47', sku: 'FLT-047', fecha: '2026-05-11 16:00', zona: 'Pasillo C' },
+          { tipo: 'entrada', item: 'Cable THW 12 AWG', sku: 'CAB-120', fecha: '2026-05-10 11:20', zona: 'Pasillo A' },
+        ]
+      },
+      {
+        id: 2, name: 'Lucía Martínez Soto', mat: 'LM002', rol: 'operador', turno: 'Matutino', zonas: 'A,B,C', color: '#059669', status: 'activo',
+        movimientos: [
+          { tipo: 'entrada', item: 'Guantes de seguridad', sku: 'GUA-SEG', fecha: '2026-05-12 09:05', zona: 'Pasillo B' },
+          { tipo: 'entrada', item: 'Casco amarillo clase B', sku: 'CAS-AMA', fecha: '2026-05-12 08:45', zona: 'Pasillo B' },
+          { tipo: 'salida', item: 'O-Ring 50mm', sku: 'ORG-050', fecha: '2026-05-11 14:30', zona: 'Pasillo C' },
+          { tipo: 'salida', item: 'Manómetro 0-150 PSI', sku: 'MAG-150', fecha: '2026-05-10 10:00', zona: 'Pasillo C' },
+        ]
+      },
+      {
+        id: 3, name: 'Ricardo Pérez Vázquez', mat: 'RP003', rol: 'supervisor', turno: 'Vespertino', zonas: 'A,B,C,D', color: '#b45309', status: 'alerta',
+        movimientos: [
+          { tipo: 'salida', item: 'Esmeriladora 4.5"', sku: 'ESM-4.5', fecha: '2026-05-11 22:14', zona: 'Zona A ' },
+          { tipo: 'entrada', item: 'Torquímetro 1/2"', sku: 'TOR-IMP', fecha: '2026-05-11 19:47', zona: 'Pasillo D' },
+          { tipo: 'salida', item: 'Calibrador Vernier', sku: 'CAL-VER', fecha: '2026-05-11 18:05', zona: 'Pasillo D' },
+        ]
+      },
+      {
+        id: 4, name: 'Arturo Guzmán Torres', mat: 'AG004', rol: 'operador', turno: 'Día libre', zonas: 'A,B', color: '#92400e', status: 'inactivo',
+        movimientos: [
+          { tipo: 'entrada', item: 'Transformador 24V', sku: 'TRN-24V', fecha: '2026-05-10 09:15', zona: 'Pasillo A' },
+          { tipo: 'salida', item: 'Breaker 10A', sku: 'BRK-010', fecha: '2026-05-09 16:40', zona: 'Pasillo A' },
+        ]
+      },
+      {
+        id: 5, name: 'María Andrade Torres', mat: 'MA-ADM', rol: 'admin', turno: 'Turno abierto', zonas: 'A,B,C,D,Admin', color: '#7c3aed', status: 'activo',
+        movimientos: [
+          { tipo: 'entrada', item: 'PLC Siemens S7-1200', sku: 'PLC-S7', fecha: '2026-05-12 07:30', zona: 'Pasillo A' },
+        ]
+      },
+    ];
+    let nextUserId = 6;
+    let stockFilter = 'todos', userFilter = 'todos';
+    let confirmCallback = null;
+
+    /* ═══════════════════════════════════
+       CLOCK
+    ═══════════════════════════════════ */
+    setInterval(() => { document.getElementById('clock').textContent = new Date().toLocaleTimeString('es-MX', { hour12: false }) }, 1000);
+    document.getElementById('clock').textContent = new Date().toLocaleTimeString('es-MX', { hour12: false });
+
+    /* ═══════════════════════════════════
+       TOAST
+    ═══════════════════════════════════ */
+    function toast(msg, type = 'success') {
+      const t = document.getElementById('toast'), m = document.getElementById('toast-msg');
+      t.className = 'toast ' + type; m.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    /* ═══════════════════════════════════
+       CONFIRM
+    ═══════════════════════════════════ */
+    function openConfirm(msg, cb) {
+      document.getElementById('confirm-msg').textContent = msg;
+      confirmCallback = cb;
+      document.getElementById('confirm-box').classList.add('open');
+      document.getElementById('confirm-ok-btn').onclick = () => { cb(); closeConfirm(); };
+    }
+    function closeConfirm() { document.getElementById('confirm-box').classList.remove('open'); }
+
+    /* ═══════════════════════════════════
+       NAVIGATION
+    ═══════════════════════════════════ */
+    function showView(id) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('view-' + id).classList.add('active');
+      const nb = document.getElementById('nb-' + id);
+      if (nb) nb.classList.add('active');
+      if (id === 'stock') { renderStockKpis(); renderStockTable(); }
+      if (id === 'users') { renderUsersTable(); }
+      if (id === 'dashboard') { renderDashboard(); }
+      if (id === 'bio') { renderBio(); }
+      if (id === 'predict') { renderPredict(); }
+      if (id === 'iot') { renderIoT(); }
+    }
+
+    /* ═══════════════════════════════════
+       MODAL HELPERS
+    ═══════════════════════════════════ */
+    function openModal(id) { document.getElementById(id).classList.add('open'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+    /* ═══════════════════════════════════
+       FMT
+    ═══════════════════════════════════ */
+    function fmt(n) { return '$' + Number(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+    function stockStatus(item) {
+      if (item.stock === 0) return ['badge-red', 'Agotado'];
+      if (item.stock < item.min * 0.4) return ['badge-red', 'Crítico'];
+      if (item.stock < item.min) return ['badge-yellow', 'Bajo'];
+      return ['badge-green', 'OK'];
+    }
+    function stockColor(item) {
+      if (item.stock === 0 || item.stock < item.min * 0.4) return 'var(--red)';
+      if (item.stock < item.min) return 'var(--yellow)';
+      return 'var(--green)';
+    }
+
+    /* ═══════════════════════════════════
+       DASHBOARD
+    ═══════════════════════════════════ */
+    function renderDashboard() {
+      const total = INVENTORY.reduce((s, i) => s + i.stock * i.precio, 0);
+      const criticos = INVENTORY.filter(i => i.stock < i.min).length;
+      document.getElementById('dash-skus').textContent = INVENTORY.length;
+      document.getElementById('dash-valor').textContent = fmt(total);
+      document.getElementById('dash-criticos').textContent = criticos;
+      const items = INVENTORY.filter(i => i.stock < i.min).slice(0, 6);
+      document.getElementById('dash-critical-table').innerHTML = items.length ?
+        `<div class="table-wrap" style="max-height:260px"><table class="data-table">
+    <thead><tr><th>SKU</th><th>Artículo</th><th>Stock</th><th>Mín.</th><th>Estado</th><th>Acción</th></tr></thead>
+    <tbody>${items.map(i => {
+          const [bc, lbl] = stockStatus(i); return `<tr>
+      <td class="td-mono" style="color:var(--cyan)">${i.sku}</td>
+      <td class="td-name">${i.emoji} ${i.name}</td>
+      <td style="font-family:var(--mono);font-weight:700;color:${stockColor(i)}">${i.stock}</td>
+      <td style="color:var(--text2);font-family:var(--mono)">${i.min}</td>
+      <td><span class="badge ${bc}">${lbl}</span></td>
+      <td><button class="btn btn-yellow btn-xs" onclick="openTicketModal(${i.id})">Ticket compra</button></td>
+    </tr>`;
+        }).join('')}</tbody></table></div>`
+        : '<div style="text-align:center;color:var(--green);font-size:13px;padding:24px"> No hay artículos críticos en este momento</div>';
+    }
+
+    /* ═══════════════════════════════════
+       STOCK TABLE
+    ═══════════════════════════════════ */
+    function setStockFilter(f, el) {
+      stockFilter = f;
+      document.querySelectorAll('#view-stock .filter-chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      renderStockTable();
+    }
+    function renderStockKpis() {
+      const total = INVENTORY.reduce((s, i) => s + i.stock * i.precio, 0);
+      const criticos = INVENTORY.filter(i => i.stock < i.min).length;
+      const agotados = INVENTORY.filter(i => i.stock === 0).length;
+      document.getElementById('stock-kpis').innerHTML = `
+    <div class="kpi"><div class="kpi-label">Total SKUs</div><div class="kpi-val cyan">${INVENTORY.length}</div></div>
+    <div class="kpi"><div class="kpi-label">Valor inventario</div><div class="kpi-val green">${fmt(total)}</div></div>
+    <div class="kpi"><div class="kpi-label">Stock crítico/bajo</div><div class="kpi-val ${criticos > 0 ? 'red' : 'green'}">${criticos}</div></div>
+    <div class="kpi"><div class="kpi-label">Agotados</div><div class="kpi-val ${agotados > 0 ? 'red' : 'green'}">${agotados}</div></div>`;
+    }
+    function renderStockTable() {
+      const q = document.getElementById('stock-search').value.toLowerCase().trim();
+      let items = [...INVENTORY];
+      if (stockFilter === 'critico') items = items.filter(i => i.stock < i.min);
+      else if (stockFilter !== 'todos') items = items.filter(i => i.cat === stockFilter);
+      if (q) items = items.filter(i => i.name.toLowerCase().includes(q) || i.sku.toLowerCase().includes(q) || i.cat.toLowerCase().includes(q) || i.loc.toLowerCase().includes(q));
+      const tb = document.getElementById('stock-tbody');
+      tb.innerHTML = items.map(item => {
+        const [bc, lbl] = stockStatus(item);
+        const pct = Math.min(100, Math.round(item.stock / item.min * 100));
+        const fc = item.stock === 0 ? 'err' : item.stock < item.min ? 'warn' : 'good';
+        return `<tr onclick="openEditItem(${item.id})" title="Clic para editar">
+      <td class="td-mono" style="color:var(--cyan)">${item.sku}</td>
+      <td><div style="font-weight:600;color:var(--text)">${item.emoji} ${item.name}</div></td>
+      <td><span class="badge badge-cyan" style="font-size:9px">${item.cat}</span></td>
+      <td>
+        <div style="font-family:var(--mono);font-weight:700;color:${stockColor(item)}">${item.stock}</div>
+        <div style="height:4px;background:var(--surface3);border-radius:2px;overflow:hidden;margin-top:3px;width:60px"><div style="height:100%;width:${pct}%;background:${stockColor(item)};border-radius:2px"></div></div>
+      </td>
+      <td class="td-mono" style="color:var(--text2)">${item.min}</td>
+      <td class="td-mono">${fmt(item.precio)}</td>
+      <td class="td-mono" style="color:var(--green)">${fmt(item.stock * item.precio)}</td>
+      <td style="font-size:11px;color:var(--text2)">${item.loc}</td>
+      <td><span class="badge ${bc}">${lbl}</span></td>
+      <td onclick="event.stopPropagation()" style="text-align:center">
+        <div style="display:flex;gap:5px;justify-content:center">
+          <button class="btn btn-ghost btn-xs" onclick="openEditItem(${item.id})" title="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+          <button class="btn btn-yellow btn-xs" onclick="openTicketModal(${item.id})" title="Ticket de compra"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></button>
+          <button class="btn btn-red btn-xs" onclick="deleteItem(${item.id})" title="Eliminar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button>
+        </div>
+      </td>
+    </tr>`;
+      }).join('');
+      const totalVal = items.reduce((s, i) => s + i.stock * i.precio, 0);
+      document.getElementById('stock-count').textContent = `${items.length} artículo${items.length !== 1 ? 's' : ''}`;
+      document.getElementById('stock-total-val').textContent = `Valor filtrado: ${fmt(totalVal)}`;
+    }
+
+    /* ── CRUD ITEM ── */
+    function openCreateItem() {
+      document.getElementById('modal-item-title').textContent = 'Nuevo artículo';
+      document.getElementById('item-editing-id').value = '';
+      ['item-sku', 'item-name', 'item-emoji', 'item-loc', 'item-proveedor'].forEach(id => document.getElementById(id).value = '');
+      ['item-stock', 'item-min', 'item-precio'].forEach(id => document.getElementById(id).value = '');
+      openModal('modal-item');
+    }
+    function openEditItem(id) {
+      const item = INVENTORY.find(i => i.id === id); if (!item) return;
+      document.getElementById('modal-item-title').textContent = 'Editar artículo — ' + item.sku;
+      document.getElementById('item-editing-id').value = id;
+      document.getElementById('item-sku').value = item.sku;
+      document.getElementById('item-name').value = item.name;
+      document.getElementById('item-cat').value = item.cat;
+      document.getElementById('item-emoji').value = item.emoji;
+      document.getElementById('item-loc').value = item.loc;
+      document.getElementById('item-stock').value = item.stock;
+      document.getElementById('item-min').value = item.min;
+      document.getElementById('item-precio').value = item.precio;
+      document.getElementById('item-proveedor').value = item.proveedor;
+      openModal('modal-item');
+    }
+    function saveItem() {
+      const sku = document.getElementById('item-sku').value.trim();
+      const name = document.getElementById('item-name').value.trim();
+      const stock = parseInt(document.getElementById('item-stock').value) || 0;
+      const min = parseInt(document.getElementById('item-min').value) || 1;
+      const precio = parseFloat(document.getElementById('item-precio').value) || 0;
+      if (!sku || !name) { toast('SKU y nombre son obligatorios', 'error'); return; }
+      const editId = parseInt(document.getElementById('item-editing-id').value);
+      if (editId) {
+        const idx = INVENTORY.findIndex(i => i.id === editId);
+        INVENTORY[idx] = {
+          ...INVENTORY[idx], sku, name, stock, min, precio,
+          cat: document.getElementById('item-cat').value,
+          emoji: document.getElementById('item-emoji').value || '',
+          loc: document.getElementById('item-loc').value || 'Sin ubicación',
+          proveedor: document.getElementById('item-proveedor').value || '—'
+        };
+        toast(` "${name}" actualizado`);
+      } else {
+        INVENTORY.push({
+          id: nextId++, sku, name, stock, min, precio,
+          cat: document.getElementById('item-cat').value,
+          emoji: document.getElementById('item-emoji').value || '',
+          loc: document.getElementById('item-loc').value || 'Sin ubicación',
+          proveedor: document.getElementById('item-proveedor').value || '—'
+        });
+        toast(` "${name}" creado`);
+      }
+      closeModal('modal-item');
+      renderStockKpis(); renderStockTable();
+    }
+    function deleteItem(id) {
+      const item = INVENTORY.find(i => i.id === id); if (!item) return;
+      openConfirm(`¿Eliminar "${item.name}" (${item.sku})? Esta acción no se puede deshacer.`, () => {
+        INVENTORY = INVENTORY.filter(i => i.id !== id);
+        renderStockKpis(); renderStockTable();
+        toast(`"${item.name}" eliminado`, 'error');
+      });
+    }
+    function exportStock() { toast('Exportando CSV... (simulado)'); }
+
+    /* ─── TICKET DE COMPRA ─── */
+    function openTicketModal(itemId) {
+      const item = INVENTORY.find(i => i.id === itemId); if (!item) return;
+      const num = 'TC-2026-' + String(Math.floor(400 + Math.random() * 500)).padStart(4, '0');
+      document.getElementById('tk-title').textContent = item.sku;
+      document.getElementById('tk-num').textContent = num;
+      document.getElementById('tk-emoji').textContent = item.emoji;
+      document.getElementById('tk-product').textContent = item.name;
+      document.getElementById('tk-sku').textContent = 'SKU: ' + item.sku;
+      document.getElementById('tk-stock-warn').textContent = `Stock actual: ${item.stock} uds. (mínimo: ${item.min})`;
+      document.getElementById('tk-proveedor').value = item.proveedor;
+      document.getElementById('tk-tel').value = '443-000-0000';
+      document.getElementById('tk-email').value = 'compras@proveedor.com';
+      document.getElementById('tk-precio-unit').value = item.precio;
+      document.getElementById('tk-cantidad').value = Math.max(item.min - item.stock + 10, 10);
+      const today = new Date(), del = new Date(today);
+      del.setDate(today.getDate() + 7);
+      document.getElementById('tk-fecha').value = today.toISOString().split('T')[0];
+      document.getElementById('tk-entrega').value = del.toISOString().split('T')[0];
+      document.getElementById('tk-obs').value = '';
+      document.getElementById('ticket-form-body').style.display = 'block';
+      document.getElementById('ticket-confirm-body').style.display = 'none';
+      document.getElementById('ticket-confirm-body').style.flexDirection = '';
+      document.getElementById('ticket-footer').style.display = 'flex';
+      recalcTicket();
+      openModal('modal-ticket');
+    }
+    function recalcTicket() {
+      const q = parseFloat(document.getElementById('tk-cantidad').value) || 0;
+      const u = parseFloat(document.getElementById('tk-precio-unit').value) || 0;
+      const sub = q * u, iva = sub * .16, total = sub + iva;
+      document.getElementById('ts-sub').textContent = fmt(sub);
+      document.getElementById('ts-iva').textContent = fmt(iva);
+      document.getElementById('ts-total').textContent = fmt(total);
+    }
+    function submitTicket() {
+      const num = document.getElementById('tk-num').textContent;
+      document.getElementById('ticket-form-body').style.display = 'none';
+      document.getElementById('ticket-footer').style.display = 'none';
+      const cb = document.getElementById('ticket-confirm-body');
+      cb.style.display = 'flex'; cb.style.flexDirection = 'column';
+      document.getElementById('tc-confirm-id').textContent = 'No. ' + num;
+      toast(' Ticket ' + num + ' generado y enviado');
+    }
+
+    /* ═══════════════════════════════════
+       USERS TABLE
+    ═══════════════════════════════════ */
+    function setUserFilter(f, el) {
+      userFilter = f;
+      document.querySelectorAll('#view-users .filter-chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      renderUsersTable();
+    }
+    function renderUsersTable() {
+      const q = document.getElementById('user-search').value.toLowerCase().trim();
+      let users = [...USERS];
+      if (userFilter !== 'todos') users = users.filter(u => u.rol === userFilter);
+      if (q) users = users.filter(u => u.name.toLowerCase().includes(q) || u.mat.toLowerCase().includes(q) || u.rol.toLowerCase().includes(q));
+      document.getElementById('users-total').textContent = USERS.length;
+      document.getElementById('users-count').textContent = `${users.length} usuario${users.length !== 1 ? 's' : ''}`;
+      const statusMap = { activo: ['badge-green', 'Activo'], alerta: ['badge-red', 'Alerta'], inactivo: ['badge-cyan', 'Inactivo'] };
+      const rolBadge = { operador: 'badge-cyan', supervisor: 'badge-yellow', admin: 'badge-purple' };
+      document.getElementById('users-tbody').innerHTML = users.map(u => {
+        const [sc, sl] = statusMap[u.status] || ['badge-cyan', '—'];
+        return `<tr onclick="openUserDetail(${u.id})" title="Ver detalle">
+      <td><div style="display:flex;align-items:center;gap:10px"><div style="width:30px;height:30px;border-radius:50%;background:${u.color};display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:11px;color:#fff;flex-shrink:0">${u.name.split(' ').map(n => n[0]).slice(0, 2).join('')}</div><div style="font-weight:600;color:var(--text)">${u.name}</div></div></td>
+      <td class="td-mono" style="color:var(--cyan)">${u.mat}</td>
+      <td><span class="badge ${rolBadge[u.rol] || 'badge-cyan'}">${u.rol}</span></td>
+      <td style="color:var(--text2);font-size:11px">${u.turno}</td>
+      <td class="td-mono" style="font-size:10px;color:var(--text2)">${u.zonas}</td>
+      <td style="font-family:var(--mono);font-weight:700;color:var(--cyan)">${u.movimientos.length}</td>
+      <td style="font-size:11px;color:var(--text2)">${u.movimientos.length ? u.movimientos[0].fecha.split(' ')[0] : '—'}</td>
+      <td><span class="badge ${sc}">${sl}</span></td>
+      <td onclick="event.stopPropagation()" style="text-align:center">
+        <div style="display:flex;gap:5px;justify-content:center">
+          <button class="btn btn-ghost btn-xs" onclick="openUserDetail(${u.id})" title="Ver detalle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          <button class="btn btn-yellow btn-xs" onclick="openEditUser(${u.id})" title="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+          <button class="btn btn-red btn-xs" onclick="deleteUser(${u.id})" title="Eliminar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button>
+        </div>
+      </td>
+    </tr>`;
+      }).join('');
+    }
+
+    /* ── USER DETAIL ── */
+    function openUserDetail(id) {
+      const u = USERS.find(x => x.id === id); if (!u) return;
+      document.getElementById('modal-user-title').textContent = 'Detalle — ' + u.name;
+      document.getElementById('user-edit-btn').onclick = () => { closeModal('modal-user'); openEditUser(id); };
+      const statusMap = { activo: ['badge-green', 'Activo'], alerta: ['badge-red', 'Alerta '], inactivo: ['badge-cyan', 'Inactivo'] };
+      const [sc, sl] = statusMap[u.status] || ['badge-cyan', '—'];
+      const rolBadge = { operador: 'badge-cyan', supervisor: 'badge-yellow', admin: 'badge-purple' };
+      const movEntradas = u.movimientos.filter(m => m.tipo === 'entrada').length;
+      const movSalidas = u.movimientos.filter(m => m.tipo === 'salida').length;
+      document.getElementById('user-detail-body').innerHTML = `
+    <div class="user-hero">
+      <div class="user-av-lg" style="background:${u.color}">${u.name.split(' ').map(n => n[0]).slice(0, 2).join('')}</div>
+      <div class="user-info-main">
+        <div class="u-name">${u.name}</div>
+        <div class="u-role">${u.rol.charAt(0).toUpperCase() + u.rol.slice(1)} · Mat. ${u.mat}</div>
+        <div class="u-meta">
+          <span class="badge ${sc}">${sl}</span>
+          <span class="badge ${rolBadge[u.rol] || 'badge-cyan'}">${u.rol}</span>
+          <span class="badge badge-cyan">${u.turno}</span>
+          <span style="font-size:11px;color:var(--text2);font-family:var(--mono)">Zonas: ${u.zonas}</span>
+        </div>
+      </div>
+    </div>
+    <div class="user-stats-grid">
+      <div class="user-stat"><div class="us-val" style="color:var(--cyan)">${u.movimientos.length}</div><div class="us-lbl">Total movimientos</div></div>
+      <div class="user-stat"><div class="us-val" style="color:var(--green)">${movEntradas}</div><div class="us-lbl">Entradas registradas</div></div>
+      <div class="user-stat"><div class="us-val" style="color:var(--orange)">${movSalidas}</div><div class="us-lbl">Salidas registradas</div></div>
+      <div class="user-stat"><div class="us-val" style="color:${u.status === 'alerta' ? 'var(--red)' : u.status === 'activo' ? 'var(--green)' : 'var(--text2)'}">${u.status === 'alerta' ? ' Alerta' : u.status === 'activo' ? 'Activo' : 'Inactivo'}</div><div class="us-lbl">Estado actual</div></div>
+    </div>
+    <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:10px">Historial de movimientos</div>
+    ${u.movimientos.length ? `
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;margin-bottom:14px">
+      <table class="data-table">
+        <thead><tr><th>Fecha</th><th>Tipo</th><th>Artículo</th><th>SKU</th><th>Zona</th></tr></thead>
+        <tbody>${u.movimientos.map(m => `<tr>
+          <td class="td-mono" style="color:var(--text2);white-space:nowrap">${m.fecha}</td>
+          <td><span class="badge ${m.tipo === 'entrada' ? 'badge-green' : 'badge-orange'}">${m.tipo === 'entrada' ? '↓ Entrada' : '↑ Salida'}</span></td>
+          <td style="font-weight:600;color:var(--text)">${m.item}</td>
+          <td class="td-mono" style="color:var(--cyan)">${m.sku}</td>
+          <td style="font-size:11px;color:var(--text2)">${m.zona}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>`: '<div style="text-align:center;color:var(--text3);padding:20px;font-size:12px">Sin movimientos registrados</div>'}
+    <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:10px">Timeline de actividad reciente</div>
+    <div class="timeline">
+      ${u.movimientos.slice(0, 5).map(m => `<div class="tl-item">
+        <div class="tl-dot ${m.tipo === 'entrada' ? 'green' : 'orange'}"></div>
+        <div class="tl-time">${m.fecha}</div>
+        <div class="tl-event">${m.tipo === 'entrada' ? 'Entrada registrada' : 'Salida registrada'} — ${m.item}</div>
+        <div class="tl-detail">SKU: ${m.sku} · ${m.zona}</div>
+      </div>`).join('')}
+    </div>`;
+      openModal('modal-user');
+    }
+
+    /* ── CREATE / EDIT USER ── */
+    function openCreateUser() {
+      document.getElementById('modal-uform-title').textContent = 'Nuevo operador';
+      document.getElementById('uf-editing-id').value = '';
+      ['uf-name', 'uf-mat', 'uf-zonas', 'uf-pass'].forEach(id => document.getElementById(id).value = '');
+      openModal('modal-user-form');
+    }
+    function openEditUser(id) {
+      const u = USERS.find(x => x.id === id); if (!u) return;
+      document.getElementById('modal-uform-title').textContent = 'Editar — ' + u.mat;
+      document.getElementById('uf-editing-id').value = id;
+      document.getElementById('uf-name').value = u.name;
+      document.getElementById('uf-mat').value = u.mat;
+      document.getElementById('uf-rol').value = u.rol;
+      document.getElementById('uf-turno').value = u.turno;
+      document.getElementById('uf-zonas').value = u.zonas;
+      document.getElementById('uf-pass').value = '';
+      openModal('modal-user-form');
+    }
+    function saveUser() {
+      const name = document.getElementById('uf-name').value.trim();
+      const mat = document.getElementById('uf-mat').value.trim().toUpperCase();
+      if (!name || !mat) { toast('Nombre y matrícula son obligatorios', 'error'); return; }
+      const editId = parseInt(document.getElementById('uf-editing-id').value);
+      const colors = ['#2563eb', '#059669', '#b45309', '#7c3aed', '#dc2626', '#0891b2'];
+      if (editId) {
+        const idx = USERS.findIndex(u => u.id === editId);
+        USERS[idx] = {
+          ...USERS[idx], name, mat,
+          rol: document.getElementById('uf-rol').value,
+          turno: document.getElementById('uf-turno').value,
+          zonas: document.getElementById('uf-zonas').value || 'A'
+        };
+        toast(` "${name}" actualizado`);
+      } else {
+        USERS.push({
+          id: nextUserId++, name, mat,
+          rol: document.getElementById('uf-rol').value,
+          turno: document.getElementById('uf-turno').value,
+          zonas: document.getElementById('uf-zonas').value || 'A',
+          color: colors[nextUserId % colors.length],
+          status: 'activo', movimientos: []
+        });
+        toast(` Operador "${name}" creado`);
+      }
+      closeModal('modal-user-form');
+      renderUsersTable();
+    }
+    function deleteUser(id) {
+      const u = USERS.find(x => x.id === id); if (!u) return;
+      openConfirm(`¿Eliminar al operador "${u.name}" (${u.mat})?`, () => {
+        USERS = USERS.filter(x => x.id !== id);
+        renderUsersTable();
+        toast(`"${u.name}" eliminado`, 'error');
+      });
+    }
+
+    /* ═══════════════════════════════════
+       BIO LOG
+    ═══════════════════════════════════ */
+    const bioLogData = [
+      { ini: 'JR', name: 'Juan Carlos Reyes', meta: 'RFID #A3F91 · Zona A · Pasillo D', time: '09:41', st: 'green' },
+      { ini: 'LM', name: 'Lucía Martínez', meta: 'RFID #C7D44 · Zona C', time: '09:38', st: 'green' },
+      { ini: '?', name: 'NO RECONOCIDO', meta: 'Tag visitante #V001 · Zona B2 ', time: '09:35', st: 'red' },
+      { ini: 'AG', name: 'Arturo Guzmán', meta: 'RFID #F2B09 · Zona A', time: '09:30', st: 'green' },
+      { ini: 'RP', name: 'Ricardo Pérez', meta: 'RFID #E8C22 · Zona D  Horario', time: '09:28', st: 'yellow' },
+    ];
+    function renderBio() {
+      const c = { green: ['green', 'Verificado'], red: ['red', 'Denegado'], yellow: ['yellow', 'Alerta'] };
+      document.getElementById('bio-log').innerHTML = bioLogData.map(d => {
+        const [col, lbl] = c[d.st];
+        return `<div class="id-log-item">
+      <div class="id-thumb" style="${d.st === 'red' ? 'border-color:rgba(255,61,107,.4);background:var(--red-dim)' : ''}">${d.ini}</div>
+      <div style="flex:1"><div style="font-size:12px;font-weight:600;color:${d.st === 'red' ? 'var(--red)' : 'var(--text)'}">${d.name}</div><div style="font-size:10px;color:var(--text2);font-family:var(--mono)">${d.meta}</div></div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+        <div style="font-size:10px;font-family:var(--mono);color:var(--text3)">${d.time}</div>
+        <span class="badge badge-${col}">${lbl}</span>
+      </div>
+    </div>`;
+      }).join('');
+      const perms = {
+        'perm-a': [{ ini: 'MA', name: 'María Andrade', zones: 'Acceso total', on: true, c: '#7c3aed' }, { ini: 'RP', name: 'Ricardo Pérez', zones: 'Supervisión', on: true, c: '#b45309' }, { ini: 'JR', name: 'Juan Reyes', zones: 'Solo lectura', on: false, c: '#2563eb' }],
+        'perm-b': [{ ini: 'JR', name: 'Juan Reyes', zones: 'Operación + retiro', on: true, c: '#2563eb' }, { ini: 'LM', name: 'Lucía Martínez', zones: 'Operación + retiro', on: true, c: '#059669' }, { ini: 'AG', name: 'Arturo Guzmán', zones: 'Solo lectura', on: true, c: '#92400e' }],
+        'perm-c': [{ ini: 'MA', name: 'María Andrade', zones: 'Administración', on: true, c: '#7c3aed' }, { ini: 'RP', name: 'Ricardo Pérez', zones: 'Supervisión', on: true, c: '#b45309' }, { ini: 'LM', name: 'Lucía Martínez', zones: 'Consulta', on: false, c: '#059669' }]
+      };
+      Object.entries(perms).forEach(([pid, ppl]) => {
+        const el = document.getElementById(pid); if (!el) return;
+        el.innerHTML = ppl.map(p => `<div class="perm-row"><div class="perm-av" style="background:${p.c}">${p.ini}</div><div class="perm-info"><div class="perm-name">${p.name}</div><div class="perm-zones">${p.zones}</div></div></div>`).join('');
+      });
+      setInterval(() => {
+        const names = [{ ini: 'JR', name: 'Juan Reyes', st: 'green' }, { ini: 'LM', name: 'Lucía Martínez', st: 'green' }, { ini: 'AG', name: 'Arturo Guzmán', st: 'green' }];
+        const n = names[Math.floor(Math.random() * names.length)];
+        const now = new Date().toLocaleTimeString('es-MX', { hour12: false }).slice(0, 5);
+        const z = ['Pasillo A', 'Pasillo B', 'Pasillo D'][Math.floor(Math.random() * 3)];
+        bioLogData.unshift({ ...n, meta: `RFID #${Math.random().toString(36).slice(2, 6).toUpperCase()} · ${z}`, time: now });
+        if (bioLogData.length > 10) bioLogData.pop();
+        const el = document.getElementById('bio-log'); if (el) el.innerHTML = el.innerHTML; // light re-render
+        renderBio();
+      }, 8000);
+    }
+
+    /* ═══════════════════════════════════
+       PREDICT CHART
+    ═══════════════════════════════════ */
+    function renderPredict() {
+      const svg = document.getElementById('line-chart-svg');
+      if (!svg || svg.dataset.rendered) return;
+      svg.dataset.rendered = '1';
+      const W = 700, H = 180, pad = { t: 15, b: 25, l: 30, r: 20 };
+      const days = 30, chartW = W - pad.l - pad.r, chartH = H - pad.t - pad.b;
+      let html = `<line x1="${pad.l}" y1="${pad.t + chartH}" x2="${W - pad.r}" y2="${pad.t + chartH}" stroke="rgba(0,212,255,.08)" stroke-width="1"/>`;
+      [0.25, 0.5, 0.75, 1].forEach(f => {
+        const y = pad.t + chartH * (1 - f);
+        html += `<line x1="${pad.l}" y1="${y}" x2="${W - pad.r}" y2="${y}" stroke="rgba(0,212,255,.04)" stroke-width="1"/>`;
+        html += `<text x="${pad.l - 4}" y="${y + 3}" text-anchor="end" fill="rgba(100,160,200,.4)" font-size="8" font-family="DM Mono">${Math.round(f * 30)}</text>`;
+      });
+      const series = [{ c: 'var(--cyan)', s: 4, r: -0.06 }, { c: 'var(--red)', s: 0, flat: true }, { c: 'var(--yellow)', s: 7, r: -0.14 }, { c: 'var(--purple)', s: 9, r: -0.18 }];
+      const zY = pad.t + chartH;
+      html += `<line x1="${pad.l}" y1="${zY}" x2="${W - pad.r}" y2="${zY}" stroke="rgba(255,61,107,.25)" stroke-width="1" stroke-dasharray="4,4"/>`;
+      series.forEach(s => {
+        const pts = [];
+        for (let i = 0; i < days; i++) {
+          const v = s.flat ? 0 : Math.max(0, s.s + s.r * i + (Math.random() - .5) * .3);
+          pts.push(`${pad.l + i * (chartW / (days - 1))},${pad.t + chartH - Math.min(1, v / 30) * chartH}`);
+        }
+        html += `<polyline points="${pts.join(' ')}" fill="none" stroke="${s.c}" stroke-width="2" stroke-linejoin="round" opacity=".85"/>`;
+        html += `<polygon points="${pad.l},${zY} ${pts.join(' ')} ${W - pad.r},${zY}" fill="${s.c}" opacity=".04"/>`;
+      });
+      ['Hoy', '7d', '14d', '21d', '30d'].forEach((l, i) => {
+        html += `<text x="${pad.l + Math.round(i * 7.25) * (chartW / (days - 1))}" y="${H - 2}" text-anchor="middle" fill="rgba(100,160,200,.4)" font-size="8" font-family="DM Mono">${l}</text>`;
+      });
+      svg.innerHTML = html;
+      const sugs = [
+        { emoji: '', name: 'Fusible 30A', detail: '×100 uds · Electro Distribuidora', days: '6 días', total: '$2,146', urgent: false },
+        { emoji: '', name: 'Filtro aceite #47', detail: '×60 uds · Filtros del Norte', days: '0 días', total: '$2,856', urgent: true },
+        { emoji: '', name: 'O-Ring 50mm', detail: '×200 uds · Sellos Hidráulicos', days: '12 días', total: '$924', urgent: false },
+      ];
+      const el = document.getElementById('predict-suggestions');
+      if (el && !el.dataset.rendered) {
+        el.dataset.rendered = '1';
+        el.innerHTML = sugs.map((s, i) => `<div class="suggestion-row"><div class="sug-icon">${s.emoji}</div><div class="sug-info"><div class="sug-name">${s.name} ${s.urgent ? '<span class="badge badge-red" style="margin-left:4px">URGENTE</span>' : ''}</div><div class="sug-detail">${s.detail} · ${s.total}</div></div><div style="font-size:11px;font-family:var(--mono);color:${s.urgent ? 'var(--red)' : 'var(--yellow)'};text-align:right;flex-shrink:0">${s.days}<div style="font-size:9px;color:var(--text3)">para desabasto</div></div><button class="approve-btn" id="sp${i}" onclick="this.textContent=' Aprobado';this.className='approve-btn approved'"> Aprobar</button></div>`).join('');
+      }
+    }
+
+    /* ═══════════════════════════════════
+       IoT
+    ═══════════════════════════════════ */
+    function renderIoT() {
+          const esvg = document.getElementById('energy-chart-svg');
+    if (esvg && !esvg.dataset.rendered) {
+      esvg.dataset.rendered = '1';
+      const R = 75;
+      const C = 2 * Math.PI * R;
+      const solar = 14.5;
+      const cfe = 6.2;
+      const total = solar + cfe;
+      
+      const solarDash = (solar / total) * C;
+      const cfeDash = (cfe / total) * C;
+      
+      // We will rotate the circle by -90 deg (-Math.PI/2) using CSS transform on the circles to start at the top
+      
+      let html = `
+        <circle cx="100" cy="100" r="${R}" fill="none" stroke="var(--surface3)" stroke-width="16" />
+        <circle cx="100" cy="100" r="${R}" fill="none" stroke="var(--yellow)" stroke-width="16" stroke-dasharray="${solarDash - 6} ${C}" stroke-linecap="round" style="transform: rotate(-90deg); transform-origin: center;" />
+        <circle cx="100" cy="100" r="${R}" fill="none" stroke="var(--cyan)" stroke-width="16" stroke-dasharray="${cfeDash - 6} ${C}" stroke-dashoffset="-${solarDash}" stroke-linecap="round" style="transform: rotate(-90deg); transform-origin: center;" />
+        <text x="100" y="95" text-anchor="middle" fill="var(--text)" font-size="28" font-weight="700" font-family="var(--sans)">${total.toFixed(1)}</text>
+        <text x="100" y="115" text-anchor="middle" fill="var(--text3)" font-size="11" font-weight="600" letter-spacing="0.05em" font-family="var(--sans)">kW TOTALES</text>
+      `;
+      esvg.innerHTML = html;
+    }
+
+      const sg = document.getElementById('sensor-grid'); if (!sg || sg.dataset.rendered) return;
+      sg.dataset.rendered = '1';
+      const sensors = [
+        { name: 'Antena RFID-01', id: 'ANT-01', zone: 'Entrada Principal', metric: '12 ms', pct: 92, st: 'good', em: '' },
+        { name: 'Antena RFID-02', id: 'ANT-02', zone: 'Zona A', metric: '8 ms', pct: 98, st: 'good', em: '' },
+        { name: 'Antena RFID-03', id: 'ANT-03', zone: 'Zona D', metric: '31 ms', pct: 74, st: 'warn', em: '' },
+        { name: 'Cámara CAM-01', id: 'CAM-01', zone: 'Entrada', metric: '98.1%', pct: 98, st: 'good', em: '' },
+        { name: 'Cámara CAM-05', id: 'CAM-05', zone: 'Zona D', metric: '87.2%', pct: 87, st: 'warn', em: '' },
+        { name: 'Sensor Temp. PT100', id: 'TEMP-01', zone: 'Almacén frío', metric: '-4.2°C', pct: 100, st: 'good', em: '' },
+        { name: 'Gateway IoT', id: 'GW-01', zone: 'Servidor local', metric: '0.3 ms', pct: 100, st: 'good', em: '' },
+        { name: 'UPS Respaldo', id: 'UPS-01', zone: 'Cuarto eléctrico', metric: '18%', pct: 18, st: 'err', em: '' },
+        { name: 'Panel Solar', id: 'SOL-01', zone: 'Techo Almacén', metric: '4.2 kW', pct: 85, st: 'good', em: '' },
+      ];
+      sg.innerHTML = sensors.map(s => `<div class="sensor-card ${s.st === 'warn' ? 'warn' : s.st === 'err' ? 'err' : ''}">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><span style="font-size:16px">${s.em}</span><span class="badge badge-${s.st === 'good' ? 'green' : s.st === 'warn' ? 'yellow' : 'red'}">${s.st === 'good' ? 'OK' : s.st === 'warn' ? 'Alerta' : 'Error'}</span></div>
+    <div class="sensor-name">${s.name}</div><div class="sensor-id">${s.id} · ${s.zone}</div>
+    <div class="sensor-metric" style="color:${s.st === 'good' ? 'var(--green)' : s.st === 'warn' ? 'var(--yellow)' : 'var(--red)'}">${s.metric}</div>
+    <div class="progress-bar"><div class="progress-fill ${s.st}" style="width:${s.pct}%"></div></div>
+  </div>`).join('');
+    }
+
+    /* ═══════════════════════════════════
+       INIT
+    ═══════════════════════════════════ */
+    renderDashboard();
+  </script>
+</body>
+
+</html>

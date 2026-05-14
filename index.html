@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inven-Smart — Gestión inteligente de almacén</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1b2e;
+    --surface: #132035;
+    --surface2: #1a2d47;
+    --surface3: #1f3452;
+    --accent: #3b82f6;
+    --accent2: #60a5fa;
+    --accent-green: #22c55e;
+    --accent-red: #ef4444;
+    --accent-yellow: #f59e0b;
+    --accent-orange: #f97316;
+    --text: #e8f0fe;
+    --text2: #94afd4;
+    --text3: #5b7a9d;
+    --border: rgba(59,130,246,0.18);
+    --radius: 16px;
+    --radius-sm: 10px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.35);
+    --transition: 0.22s cubic-bezier(.4,0,.2,1);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+
+  .app-shell { width: 100%; max-width: 420px; min-height: 100svh; background: var(--bg); position: relative; overflow: hidden; display: flex; flex-direction: column; }
+  .screen { display: none; flex-direction: column; flex: 1; animation: fadeSlide .25s ease both; }
+  .screen.active { display: flex; }
+  @keyframes fadeSlide { from { opacity:0; transform:translateY(12px);} to { opacity:1; transform:translateY(0);} }
+
+  /* STATUS BAR */
+  .status-bar { height:44px; display:flex; align-items:center; justify-content:space-between; padding:0 22px; background:var(--bg); font-size:12px; font-weight:600; color:var(--text2); flex-shrink:0; }
+  .status-bar .time { font-family:'Space Grotesk',sans-serif; font-size:14px; }
+  .status-icons { display:flex; gap:5px; align-items:center; }
+  .status-icons svg { width:16px; height:16px; }
+
+  /* HEADER */
+  .header { padding:12px 20px 10px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+  .header-logo { display:flex; align-items:center; gap:10px; }
+  .header-logo .icon { width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,var(--accent),#1e40af); display:flex; align-items:center; justify-content:center; }
+  .header-logo .icon svg { width:20px; height:20px; color:#fff; }
+  .header-logo .brand { font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16px; line-height:1.1; }
+  .header-logo .brand span { display:block; font-size:10px; font-weight:400; color:var(--text2); }
+  .header-actions { display:flex; gap:10px; align-items:center; }
+  .avatar { width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,#2563eb,#1d4ed8); display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; color:#fff; cursor:pointer; border:2px solid var(--accent); }
+  .notif-btn { width:34px; height:34px; border-radius:50%; background:var(--surface); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; cursor:pointer; position:relative; }
+  .notif-btn svg { width:18px; height:18px; color:var(--text2); }
+  .notif-badge { position:absolute; top:3px; right:3px; width:14px; height:14px; border-radius:50%; background:var(--accent-red); font-size:9px; font-weight:700; display:flex; align-items:center; justify-content:center; border:2px solid var(--bg); }
+
+  /* SCROLL */
+  .scroll-area { flex:1; overflow-y:auto; padding:0 16px 100px; scroll-behavior:smooth; }
+  .scroll-area::-webkit-scrollbar { width:4px; }
+  .scroll-area::-webkit-scrollbar-thumb { background:var(--surface3); border-radius:2px; }
+
+  /* BOTTOM NAV - 4 tabs */
+  .bottom-nav { position:sticky; bottom:0; background:var(--surface); border-top:1px solid var(--border); display:flex; align-items:stretch; padding:8px 0 max(env(safe-area-inset-bottom),8px); backdrop-filter:blur(12px); z-index:100; flex-shrink:0; }
+  .nav-item { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; cursor:pointer; padding:6px 0; transition:color var(--transition); color:var(--text3); font-size:10px; font-weight:500; }
+  .nav-item svg { width:22px; height:22px; }
+  .nav-item.active { color:var(--accent2); }
+  .nav-item:hover { color:var(--text2); }
+
+  /* CARDS */
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:12px; box-shadow:var(--shadow); }
+  .card-sm { background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 14px; margin-bottom:8px; }
+
+  /* STATS */
+  .stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+  .stat-tile { background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:14px 16px; }
+  .stat-tile .val { font-family:'Space Grotesk',sans-serif; font-size:26px; font-weight:700; color:var(--text); line-height:1; }
+  .stat-tile .val.green { color:var(--accent-green); }
+  .stat-tile .val.yellow { color:var(--accent-yellow); }
+  .stat-tile .val.red { color:var(--accent-red); }
+  .stat-tile .lbl { font-size:11px; color:var(--text2); margin-top:4px; }
+
+  /* BADGES */
+  .badge { display:inline-flex; align-items:center; padding:2px 8px; border-radius:20px; font-size:10px; font-weight:600; }
+  .badge-green { background:rgba(34,197,94,.15); color:var(--accent-green); border:1px solid rgba(34,197,94,.3); }
+  .badge-yellow { background:rgba(245,158,11,.15); color:var(--accent-yellow); border:1px solid rgba(245,158,11,.3); }
+  .badge-red { background:rgba(239,68,68,.15); color:var(--accent-red); border:1px solid rgba(239,68,68,.3); }
+  .badge-blue { background:rgba(59,130,246,.15); color:var(--accent2); border:1px solid rgba(59,130,246,.3); }
+  .badge-orange { background:rgba(249,115,22,.15); color:var(--accent-orange); border:1px solid rgba(249,115,22,.3); }
+
+  .section-title { font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--text3); margin:18px 0 10px; }
+
+  .list-item { display:flex; align-items:center; gap:12px; padding:12px 14px; background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-sm); margin-bottom:8px; cursor:pointer; transition:background var(--transition); }
+  .list-item:hover { background:var(--surface3); }
+  .list-item .icon-wrap { width:36px; height:36px; border-radius:9px; background:var(--surface3); flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+  .list-item .icon-wrap svg { width:18px; height:18px; color:var(--accent2); }
+  .list-item .info { flex:1; min-width:0; }
+  .list-item .info .name { font-size:13px; font-weight:600; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .list-item .info .sub { font-size:11px; color:var(--text2); margin-top:2px; }
+
+  .search-bar { display:flex; align-items:center; gap:10px; background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 14px; margin-bottom:14px; }
+  .search-bar svg { width:18px; height:18px; color:var(--text3); flex-shrink:0; }
+  .search-bar input { background:none; border:none; outline:none; color:var(--text); font-size:13px; font-family:inherit; flex:1; }
+  .search-bar input::placeholder { color:var(--text3); }
+
+  .btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 18px; border-radius:var(--radius-sm); font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; border:none; transition:all var(--transition); }
+  .btn-primary { background:var(--accent); color:#fff; box-shadow:0 0 18px rgba(59,130,246,.4); }
+  .btn-primary:hover { background:#2563eb; }
+  .btn-outline { background:transparent; color:var(--accent2); border:1px solid var(--accent); }
+  .btn-outline:hover { background:rgba(59,130,246,.1); }
+  .btn-full { width:100%; }
+
+  /* LOGIN */
+  .login-wrap { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:32px 24px; }
+  .login-logo { width:80px; height:80px; border-radius:24px; background:linear-gradient(135deg,var(--accent),#1e40af); display:flex; align-items:center; justify-content:center; box-shadow:0 0 40px rgba(59,130,246,.4); margin-bottom:20px; }
+  .login-logo svg { width:44px; height:44px; color:#fff; }
+  .login-app-name { font-family:'Space Grotesk',sans-serif; font-size:26px; font-weight:700; margin-bottom:4px; }
+  .login-subtitle { font-size:13px; color:var(--text2); margin-bottom:40px; }
+  .biometric-panel { width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius); padding:28px 24px; text-align:center; box-shadow:var(--shadow); margin-bottom:20px; }
+  .bio-ring { width:90px; height:90px; border-radius:50%; background:var(--surface3); border:2px solid var(--border); display:flex; align-items:center; justify-content:center; margin:0 auto 14px; cursor:pointer; transition:all .3s ease; }
+  .bio-ring:hover { border-color:var(--accent); box-shadow:0 0 24px rgba(59,130,246,.3); }
+  .bio-ring svg { width:44px; height:44px; color:var(--accent2); }
+  .bio-ring.scanning { animation:pulse-ring 1.2s infinite; border-color:var(--accent); }
+  @keyframes pulse-ring { 0%,100%{box-shadow:0 0 0 0 rgba(59,130,246,.5);}50%{box-shadow:0 0 0 16px rgba(59,130,246,0);} }
+  .bio-label { font-size:13px; font-weight:600; color:var(--text); margin-bottom:6px; }
+  .bio-sub { font-size:11px; color:var(--text2); }
+  .login-or { display:flex; align-items:center; gap:12px; margin:14px 0; }
+  .login-or span { font-size:11px; color:var(--text3); white-space:nowrap; }
+  .login-or::before,.login-or::after { content:''; flex:1; height:1px; background:var(--border); }
+  .login-input { width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:11px 14px; color:var(--text); font-family:inherit; font-size:13px; outline:none; margin-bottom:12px; transition:border-color var(--transition); }
+  .login-input:focus { border-color:var(--accent); }
+  .security-badges { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:18px; }
+  .sec-badge { display:flex; align-items:center; gap:4px; font-size:10px; color:var(--text3); font-weight:500; }
+  .sec-badge svg { width:12px; height:12px; color:var(--accent-green); }
+
+  /* DASHBOARD */
+  .greeting { font-size:18px; font-weight:700; color:var(--text); margin-bottom:16px; margin-top:4px; }
+  .greeting span { color:var(--accent2); }
+  .voice-btn { display:flex; align-items:center; gap:10px; background:linear-gradient(135deg,rgba(59,130,246,.2),rgba(30,64,175,.3)); border:1px solid rgba(59,130,246,.4); border-radius:var(--radius-sm); padding:12px 16px; cursor:pointer; margin-bottom:16px; transition:all var(--transition); }
+  .voice-btn:hover { border-color:var(--accent); }
+  .voice-btn .pulse { width:32px; height:32px; border-radius:50%; background:var(--accent); display:flex; align-items:center; justify-content:center; animation:pulse-sm 2s infinite; }
+  .voice-btn .pulse svg { width:18px; height:18px; color:#fff; }
+  @keyframes pulse-sm { 0%,100%{box-shadow:0 0 0 0 rgba(59,130,246,.5);}50%{box-shadow:0 0 0 8px rgba(59,130,246,0);} }
+  .voice-btn .txt { font-size:13px; font-weight:600; color:var(--accent2); }
+  .voice-btn .txt span { display:block; font-size:10px; color:var(--text2); font-weight:400; }
+
+  /* ALERTAS */
+  .alert-item { display:flex; gap:12px; padding:12px 0; border-bottom:1px solid var(--border); }
+  .alert-item:last-child { border-bottom:none; }
+  .alert-bar { width:3px; border-radius:2px; flex-shrink:0; min-height:40px; }
+  .alert-bar.red { background:var(--accent-red); }
+  .alert-bar.yellow { background:var(--accent-yellow); }
+  .alert-bar.blue { background:var(--accent); }
+  .alert-bar.orange { background:var(--accent-orange); }
+  .alert-content { flex:1; min-width:0; }
+  .alert-title { font-size:13px; font-weight:700; color:var(--text); margin-bottom:2px; }
+  .alert-desc { font-size:11px; color:var(--text2); line-height:1.4; }
+  .alert-time { font-size:10px; color:var(--text3); margin-top:4px; display:flex; align-items:center; gap:4px; }
+  .alert-time svg { width:10px; height:10px; }
+  .alert-actions { margin-top:8px; }
+  .btn-ticket { display:inline-flex; align-items:center; gap:5px; background:linear-gradient(135deg,rgba(245,158,11,.18),rgba(249,115,22,.12)); border:1px solid rgba(245,158,11,.4); color:var(--accent-yellow); border-radius:8px; padding:6px 12px; font-size:11px; font-weight:700; cursor:pointer; font-family:inherit; transition:all var(--transition); }
+  .btn-ticket:hover { background:rgba(245,158,11,.28); border-color:var(--accent-yellow); }
+  .btn-ticket svg { width:12px; height:12px; flex-shrink:0; }
+
+  /* UBICAR */
+  .map-area { background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:14px; overflow:hidden; position:relative; height:180px; }
+  .map-svg { width:100%; height:100%; }
+  .map-label { position:absolute; bottom:10px; left:50%; transform:translateX(-50%); background:var(--accent); color:#fff; font-size:11px; font-weight:700; padding:4px 12px; border-radius:20px; white-space:nowrap; }
+  .ai-panel { background:linear-gradient(135deg,rgba(30,64,175,.25),rgba(59,130,246,.1)); border:1px solid rgba(59,130,246,.3); border-radius:var(--radius-sm); padding:14px; margin-bottom:14px; }
+  .ai-panel .ai-title { font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--accent2); margin-bottom:10px; }
+  .ai-bar-item { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+  .ai-bar-item:last-child { margin-bottom:0; }
+  .ai-bar-name { font-size:12px; color:var(--text2); width:90px; flex-shrink:0; }
+  .ai-bar-track { flex:1; height:6px; background:var(--surface3); border-radius:3px; overflow:hidden; }
+  .ai-bar-fill { height:100%; border-radius:3px; }
+  .ai-bar-fill.blue { background:var(--accent); }
+  .ai-bar-fill.yellow { background:var(--accent-yellow); }
+  .ai-bar-fill.orange { background:var(--accent-orange); }
+  .ai-bar-pct { font-size:11px; font-weight:700; color:var(--text); width:32px; text-align:right; }
+  .location-pill { display:inline-flex; align-items:center; gap:6px; background:rgba(59,130,246,.12); border:1px solid rgba(59,130,246,.25); border-radius:20px; padding:5px 12px; font-size:12px; font-weight:600; color:var(--accent2); margin-top:8px; }
+  .location-pill svg { width:12px; height:12px; }
+  .product-name { font-size:16px; font-weight:700; color:var(--text); margin-bottom:4px; }
+  .product-meta { font-size:11px; color:var(--text2); }
+
+  /* PERFIL */
+  .profile-hero { background:linear-gradient(135deg,#1e3a5f,#0d1b2e); border:1px solid var(--border); border-radius:var(--radius); padding:24px; text-align:center; margin-bottom:14px; }
+  .profile-avatar-lg { width:64px; height:64px; border-radius:50%; background:linear-gradient(135deg,#2563eb,#1d4ed8); display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:22px; color:#fff; margin:0 auto 12px; border:3px solid var(--accent); box-shadow:0 0 20px rgba(59,130,246,.4); }
+  .profile-name { font-family:'Space Grotesk',sans-serif; font-size:18px; font-weight:700; }
+  .profile-role { font-size:12px; color:var(--text2); margin-top:2px; }
+  .profile-shift { display:inline-flex; align-items:center; gap:6px; background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.3); border-radius:20px; padding:4px 12px; font-size:11px; font-weight:600; color:var(--accent-green); margin-top:10px; }
+  .info-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .info-tile { background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 14px; }
+  .info-tile .i-label { font-size:10px; color:var(--text3); margin-bottom:4px; display:flex; align-items:center; gap:5px; }
+  .info-tile .i-label svg { width:11px; height:11px; }
+  .info-tile .i-val { font-size:14px; font-weight:700; color:var(--text); }
+  .biometrics-row { display:flex; align-items:center; justify-content:space-between; padding:10px 0; }
+  .bio-lft { display:flex; align-items:center; gap:10px; }
+  .bio-lft svg { width:18px; height:18px; color:var(--accent2); }
+  .bio-lft .ttl { font-size:13px; font-weight:600; }
+  .bio-lft .sub { font-size:10px; color:var(--text2); }
+  .ok-badge { background:rgba(34,197,94,.15); color:var(--accent-green); border:1px solid rgba(34,197,94,.3); border-radius:6px; font-size:11px; font-weight:700; padding:2px 10px; }
+  .voice-inventory-btn { display:flex; align-items:center; gap:12px; background:linear-gradient(135deg,var(--accent),#1d4ed8); border-radius:var(--radius-sm); padding:14px 18px; cursor:pointer; box-shadow:0 0 24px rgba(59,130,246,.35); transition:all var(--transition); border:none; width:100%; }
+  .voice-inventory-btn:hover { box-shadow:0 0 32px rgba(59,130,246,.5); transform:translateY(-1px); }
+  .voice-inventory-btn svg { width:22px; height:22px; color:#fff; flex-shrink:0; }
+  .voice-inventory-btn .vtxt { font-size:14px; font-weight:700; color:#fff; }
+  .voice-inventory-btn .vtxt span { display:block; font-size:10px; font-weight:400; opacity:.75; }
+
+  /* ════════════════════════════════
+     MODAL TICKET DE COMPRA
+  ════════════════════════════════ */
+  .modal-backdrop { display:none; position:fixed; inset:0; z-index:500; background:rgba(7,17,30,.88); backdrop-filter:blur(6px); align-items:flex-end; justify-content:center; }
+  .modal-backdrop.open { display:flex; animation:bdFade .2s ease; }
+  @keyframes bdFade { from{opacity:0;}to{opacity:1;} }
+  .modal-sheet { width:100%; max-width:420px; max-height:92svh; background:var(--surface); border-radius:24px 24px 0 0; border:1px solid var(--border); border-bottom:none; display:flex; flex-direction:column; animation:sheetUp .28s cubic-bezier(.4,0,.2,1); overflow:hidden; }
+  @keyframes sheetUp { from{transform:translateY(100%);}to{transform:translateY(0);} }
+  .modal-handle { width:40px; height:4px; border-radius:2px; background:var(--surface3); margin:12px auto 0; flex-shrink:0; }
+  .modal-header { display:flex; align-items:center; justify-content:space-between; padding:14px 20px 12px; border-bottom:1px solid var(--border); flex-shrink:0; }
+  .modal-title { font-family:'Space Grotesk',sans-serif; font-size:16px; font-weight:700; }
+  .modal-close { width:30px; height:30px; border-radius:50%; background:var(--surface2); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; cursor:pointer; }
+  .modal-close svg { width:16px; height:16px; color:var(--text2); }
+  .modal-body { flex:1; overflow-y:auto; padding:16px 20px 8px; }
+  .modal-body::-webkit-scrollbar { width:3px; }
+  .modal-body::-webkit-scrollbar-thumb { background:var(--surface3); }
+
+  /* Ticket content */
+  .ticket-number { display:flex; align-items:center; justify-content:space-between; padding:9px 14px; background:rgba(59,130,246,.08); border:1px solid rgba(59,130,246,.2); border-radius:var(--radius-sm); margin-bottom:14px; font-size:12px; color:var(--text2); }
+  .ticket-number strong { font-family:'Space Grotesk',sans-serif; color:var(--accent2); font-size:13px; }
+  .ticket-product-row { display:flex; align-items:center; gap:12px; background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 14px; margin-bottom:16px; }
+  .ticket-product-icon { width:40px; height:40px; border-radius:10px; background:rgba(245,158,11,.15); border:1px solid rgba(245,158,11,.3); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .ticket-product-icon svg { width:20px; height:20px; color:var(--accent-yellow); }
+  .ticket-product-name { font-size:14px; font-weight:700; color:var(--text); }
+  .ticket-product-sku { font-size:11px; color:var(--text2); margin-top:2px; }
+  .ticket-stock-warn { display:inline-flex; align-items:center; gap:4px; margin-top:4px; font-size:10px; font-weight:700; color:var(--accent-yellow); }
+  .ticket-stock-warn svg { width:10px; height:10px; }
+
+  /* Form */
+  .form-group { margin-bottom:13px; }
+  .form-label { display:flex; align-items:center; gap:5px; font-size:11px; font-weight:600; color:var(--text2); letter-spacing:.04em; text-transform:uppercase; margin-bottom:5px; }
+  .form-label svg { width:12px; height:12px; }
+  .form-control { width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 13px; color:var(--text); font-family:inherit; font-size:13px; outline:none; transition:border-color var(--transition); }
+  .form-control:focus { border-color:var(--accent); background:var(--surface3); }
+  .form-control::placeholder { color:var(--text3); }
+  .form-select { width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 13px; color:var(--text); font-family:inherit; font-size:13px; outline:none; cursor:pointer; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235b7a9d' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; background-size:16px; transition:border-color var(--transition); }
+  .form-select:focus { border-color:var(--accent); }
+  .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+
+  /* Summary */
+  .ticket-summary { background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-sm); overflow:hidden; margin-top:16px; margin-bottom:4px; }
+  .ticket-summary-title { background:var(--surface3); padding:9px 14px; font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--text2); }
+  .summary-row { display:flex; justify-content:space-between; align-items:center; padding:9px 14px; border-bottom:1px solid var(--border); }
+  .summary-row:last-child { border-bottom:none; }
+  .summary-label { font-size:12px; color:var(--text2); }
+  .summary-value { font-size:13px; font-weight:600; color:var(--text); font-family:'Space Grotesk',sans-serif; }
+  .summary-row.total .summary-label { font-size:13px; font-weight:700; color:var(--text); }
+  .summary-row.total .summary-value { font-size:16px; font-weight:700; color:var(--accent-green); }
+  .summary-row.iva .summary-value { color:var(--accent-yellow); }
+
+  /* Footer */
+  .modal-footer { display:flex; gap:10px; padding:12px 20px; border-top:1px solid var(--border); flex-shrink:0; background:var(--surface); }
+
+  /* Confirm */
+  .ticket-confirm { display:none; flex-direction:column; align-items:center; justify-content:center; padding:40px 24px; text-align:center; gap:12px; }
+  .ticket-confirm.show { display:flex; animation:fadeSlide .3s ease; }
+  .confirm-icon { width:70px; height:70px; border-radius:50%; background:rgba(34,197,94,.15); border:2px solid rgba(34,197,94,.4); display:flex; align-items:center; justify-content:center; box-shadow:0 0 30px rgba(34,197,94,.25); }
+  .confirm-icon svg { width:36px; height:36px; color:var(--accent-green); }
+  .confirm-title { font-family:'Space Grotesk',sans-serif; font-size:18px; font-weight:700; color:var(--accent-green); }
+  .confirm-sub { font-size:13px; color:var(--text2); line-height:1.5; max-width:280px; }
+  .confirm-ticket-id { font-family:'Space Grotesk',sans-serif; font-size:12px; color:var(--text3); }
+
+  /* RESPONSIVE */
+  @media (min-width:480px) {
+    body { background:#07111e; padding:24px 16px; }
+    .app-shell { border-radius:40px; border:1px solid rgba(59,130,246,.2); box-shadow:0 30px 80px rgba(0,0,0,.7); max-height:calc(100svh - 48px); }
+    .screen { max-height:calc(100svh - 48px); }
+    .modal-sheet { border-radius:24px; margin:0 auto 24px; }
+    .modal-backdrop { align-items:center; }
+  }
+  @media (min-width:900px) { body { padding:32px; justify-content:center; } }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ══ SCREEN 2 — DASHBOARD ══ -->\n  <div class="screen active" id="s2">
+    <div class="status-bar"><span class="time">9:41</span><div class="status-icons"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.237 4.237 0 00-6 0zm-4-4l2 2a7.074 7.074 0 0110 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="7" width="20" height="11" rx="2"/><path d="M22 11h1v2h-1z"/></svg></div></div>
+    <div class="header">
+      <div class="header-logo">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg></div>
+        <div class="brand">Inven-Smart <span>Gestión inteligente</span></div>
+      </div>
+      <div class="header-actions">
+        <div class="notif-btn" onclick="goTo('s4')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg><div class="notif-badge">3</div></div>
+        <div class="avatar" onclick="goTo('s6')">JR</div>
+      </div>
+    </div>
+    <div class="scroll-area">
+      <div class="greeting">Buen día, <span>Juan Reyes</span> </div>
+      <div class="stats-grid">
+        <div class="stat-tile"><div class="val">1,284</div><div class="lbl">SKUs totales</div></div>
+        <div class="stat-tile"><div class="val green">97.2%</div><div class="lbl">Precisión</div></div>
+        <div class="stat-tile"><div class="val yellow">14</div><div class="lbl">Stock bajo</div></div>
+        <div class="stat-tile"><div class="val red">3</div><div class="lbl">Alertas activas</div></div>
+      </div>
+      <div class="search-bar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input placeholder="Buscar SKU, nombre, zona…" /></div>
+      <div class="voice-btn"><div class="pulse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/></svg></div><div class="txt">Inventario parlante (voz)<span>Comando de voz activo</span></div></div>
+      <div class="section-title">Movimientos recientes</div>
+      <div class="list-item"><div class="icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 010 1.4l-8 8a1 1 0 01-.7.3H4a1 1 0 01-1-1v-2a1 1 0 01.3-.7l8-8a1 1 0 011.4 0z"/><path d="M15 5l4 4"/></svg></div><div class="info"><div class="name">Llave imp…</div><div class="sub">Pasillo B · E3</div></div><span class="badge badge-green">Activo</span></div>
+      <div class="list-item"><div class="icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="info"><div class="name">Fusible 30A</div><div class="sub">Pasillo A · E1</div></div><span class="badge badge-yellow">Bajo</span></div>
+      <div class="list-item"><div class="icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/></svg></div><div class="info"><div class="name">Filtro ac…</div><div class="sub">Pasillo C · E5</div></div><span class="badge badge-red">Agotado</span></div>
+    </div>
+    <nav class="bottom-nav">
+      <div class="nav-item active" onclick="goTo('s2')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Inicio</div>
+      <div class="nav-item" onclick="goTo('s5')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 00-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 00-8-8z"/></svg>Ubicar</div>
+      <div class="nav-item" onclick="goTo('s4')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>Alertas</div>
+      <div class="nav-item" onclick="goTo('s6')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Perfil</div>
+    </nav>
+  </div>
+
+  <!-- ══ SCREEN 4 — ALERTAS ══ -->
+  <div class="screen" id="s4">
+    <div class="status-bar"><span class="time">9:41</span><div class="status-icons"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.237 4.237 0 00-6 0zm-4-4l2 2a7.074 7.074 0 0110 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="7" width="20" height="11" rx="2"/><path d="M22 11h1v2h-1z"/></svg></div></div>
+    <div class="header">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px;height:22px;color:var(--accent2)"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+        <span style="font-weight:700;font-size:17px;">Alertas</span>
+        <span class="badge badge-red">3</span>
+      </div>
+      <span style="font-size:11px;color:var(--accent2);cursor:pointer;">Ver todas</span>
+    </div>
+    <div class="scroll-area">
+
+      <div class="section-title" style="color:var(--accent-red);">Críticas</div>
+      <div class="card">
+        <div class="alert-item">
+          <div class="alert-bar red"></div>
+          <div class="alert-content">
+            <div class="alert-title">Movimiento no autorizado</div>
+            <div class="alert-desc">Llave de torque · Pasillo B</div>
+            <div class="alert-time"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Hace 5 min · Cámara 04 (IA)</div>
+          </div>
+          <span class="badge badge-red">!</span>
+        </div>
+        <div class="alert-item">
+          <div class="alert-bar red"></div>
+          <div class="alert-content">
+            <div class="alert-title">Stock en cero</div>
+            <div class="alert-desc">Filtro aceite #47 · Pasillo C — 0 uds. disponibles</div>
+            <div class="alert-time"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Hace 23 min</div>
+            <div class="alert-actions">
+              <button class="btn-ticket" onclick="openTicket('Filtro aceite #47','FLT-047','Filtros Industriales del Norte S.A.','quedan 0 uds.')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                Generar ticket de compra
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title" style="color:var(--accent-yellow);">Advertencias</div>
+      <div class="card">
+        <div class="alert-item">
+          <div class="alert-bar yellow"></div>
+          <div class="alert-content">
+            <div class="alert-title">Stock bajo</div>
+            <div class="alert-desc">Fusible 30A · quedan 4 uds. (mínimo: 20)</div>
+            <div class="alert-time"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Hace 1 hr</div>
+            <div class="alert-actions">
+              <button class="btn-ticket" onclick="openTicket('Fusible 30A','FUS-030A','Electro Distribuidora Morelia S.C.','quedan 4 uds.')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                Generar ticket de compra
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="alert-item">
+          <div class="alert-bar orange"></div>
+          <div class="alert-content">
+            <div class="alert-title">Material peligroso mal ubicado</div>
+            <div class="alert-desc">Inflamable · Zona B2 (NOM-018)</div>
+            <div class="alert-time"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Hace 2 hr</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title" style="color:var(--accent);">Big Data — comportamiento</div>
+      <div class="card">
+        <div class="alert-item">
+          <div class="alert-bar blue"></div>
+          <div class="alert-content">
+            <div class="alert-title">Patrón sospechoso detectado</div>
+            <div class="alert-desc">Usuario #12 · accesos fuera de horario</div>
+            <div class="alert-time"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Ayer 22:43</div>
+          </div>
+          <span class="badge badge-blue">IA</span>
+        </div>
+      </div>
+
+    </div>
+    <nav class="bottom-nav">
+      <div class="nav-item" onclick="goTo('s2')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Inicio</div>
+      <div class="nav-item" onclick="goTo('s5')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 00-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 00-8-8z"/></svg>Ubicar</div>
+      <div class="nav-item active" onclick="goTo('s4')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>Alertas</div>
+      <div class="nav-item" onclick="goTo('s6')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Perfil</div>
+    </nav>
+  </div>
+
+  <!-- ══ SCREEN 5 — UBICAR ══ -->
+  <div class="screen" id="s5">
+    <div class="status-bar"><span class="time">9:41</span><div class="status-icons"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.237 4.237 0 00-6 0zm-4-4l2 2a7.074 7.074 0 0110 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="7" width="20" height="11" rx="2"/><path d="M22 11h1v2h-1z"/></svg></div></div>
+    <div class="header">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px;height:22px;color:var(--accent2)"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 00-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 00-8-8z"/></svg>
+        <span style="font-weight:700;font-size:17px;">Localizar artículo</span>
+      </div>
+    </div>
+    <div class="scroll-area">
+      <div class="search-bar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input placeholder="SKU o nombre del artículo…" /></div>
+      <div class="section-title">Mapa del almacén</div>
+      <div class="map-area">
+        <svg class="map-svg" viewBox="0 0 360 180" xmlns="http://www.w3.org/2000/svg">
+          <defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(59,130,246,0.08)" stroke-width="1"/></pattern></defs>
+          <rect width="360" height="180" fill="url(#grid)"/>
+          <rect x="20" y="20" width="60" height="140" rx="4" fill="rgba(59,130,246,0.08)" stroke="rgba(59,130,246,0.2)" stroke-width="1"/>
+          <rect x="100" y="20" width="60" height="140" rx="4" fill="rgba(59,130,246,0.08)" stroke="rgba(59,130,246,0.2)" stroke-width="1"/>
+          <rect x="180" y="20" width="60" height="140" rx="4" fill="rgba(59,130,246,0.08)" stroke="rgba(59,130,246,0.2)" stroke-width="1"/>
+          <rect x="260" y="20" width="60" height="140" rx="4" fill="rgba(59,130,246,0.18)" stroke="rgba(59,130,246,0.5)" stroke-width="1.5"/>
+          <text x="50" y="168" text-anchor="middle" fill="rgba(148,175,212,0.6)" font-size="8" font-family="DM Sans">A</text>
+          <text x="130" y="168" text-anchor="middle" fill="rgba(148,175,212,0.6)" font-size="8" font-family="DM Sans">B</text>
+          <text x="210" y="168" text-anchor="middle" fill="rgba(148,175,212,0.6)" font-size="8" font-family="DM Sans">C</text>
+          <text x="290" y="168" text-anchor="middle" fill="rgba(148,175,212,0.6)" font-size="8" font-family="DM Sans">D</text>
+          <circle cx="290" cy="75" r="10" fill="#3b82f6" opacity="0.9"/>
+          <circle cx="290" cy="75" r="5" fill="#fff"/>
+          <circle cx="290" cy="75" r="16" fill="none" stroke="#3b82f6" stroke-width="1.5" opacity="0.4"><animate attributeName="r" from="10" to="22" dur="1.5s" repeatCount="indefinite"/><animate attributeName="opacity" from="0.6" to="0" dur="1.5s" repeatCount="indefinite"/></circle>
+          <rect x="270" y="62" width="40" height="16" rx="3" fill="#1e3a5f" stroke="#3b82f6" stroke-width="1"/>
+          <text x="290" y="74" text-anchor="middle" fill="#60a5fa" font-size="8" font-weight="bold" font-family="DM Sans">E·2 P4</text>
+        </svg>
+        <div class="map-label">Pasillo D · Estante 2 · Posición 4</div>
+      </div>
+      <div class="card-sm">
+        <div class="product-name" style="font-size:15px;">Rodamiento 6205-2RS</div>
+        <div class="product-meta">SKU: ROD-6205 · Stock: 8 uds.</div>
+        <div class="location-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 00-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 00-8-8z"/></svg>Pasillo D · Estante 2 · Pos. 4</div>
+      </div>
+      <div class="ai-panel">
+        <div class="ai-title"> IA predictiva — stock recomendado</div>
+        <div class="ai-bar-item"><div class="ai-bar-name">Rodamiento</div><div class="ai-bar-track"><div class="ai-bar-fill blue" style="width:80%"></div></div><div class="ai-bar-pct" style="color:var(--accent2);">80%</div></div>
+        <div class="ai-bar-item"><div class="ai-bar-name">Fusible 30A</div><div class="ai-bar-track"><div class="ai-bar-fill yellow" style="width:35%"></div></div><div class="ai-bar-pct" style="color:var(--accent-yellow);">35%</div></div>
+        <div class="ai-bar-item"><div class="ai-bar-name">Filtro aceite</div><div class="ai-bar-track"><div class="ai-bar-fill orange" style="width:5%"></div></div><div class="ai-bar-pct" style="color:var(--accent-orange);">5%</div></div>
+      </div>
+    </div>
+    <nav class="bottom-nav">
+      <div class="nav-item" onclick="goTo('s2')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Inicio</div>
+      <div class="nav-item active" onclick="goTo('s5')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 00-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 00-8-8z"/></svg>Ubicar</div>
+      <div class="nav-item" onclick="goTo('s4')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>Alertas</div>
+      <div class="nav-item" onclick="goTo('s6')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Perfil</div>
+    </nav>
+  </div>
+
+  <!-- ══ SCREEN 6 — PERFIL ══ -->
+  <div class="screen" id="s6">
+    <div class="status-bar"><span class="time">9:41</span><div class="status-icons"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.237 4.237 0 00-6 0zm-4-4l2 2a7.074 7.074 0 0110 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="7" width="20" height="11" rx="2"/><path d="M22 11h1v2h-1z"/></svg></div></div>
+    <div class="header">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px;height:22px;color:var(--accent2)"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span style="font-weight:700;font-size:17px;">Perfil de operador</span>
+      </div>
+      <span style="font-size:11px;color:var(--accent-red);cursor:pointer;" onclick="goTo('s1')">Cerrar sesión</span>
+    </div>
+    <div class="scroll-area">
+      <div class="profile-hero">
+        <div class="profile-avatar-lg">JR</div>
+        <div class="profile-name">Juan Carlos González</div>
+        <div class="profile-role">Operador de almacén</div>
+        <div class="profile-shift"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Turno matutino</div>
+      </div>
+      <div class="section-title">Datos del operador</div>
+      <div class="info-grid">
+        <div class="info-tile"><div class="i-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Matrícula</div><div class="i-val">23121172</div></div>
+        <div class="info-tile"><div class="i-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Acceso a zonas</div><div class="i-val">A, B, C, D</div></div>
+      </div>
+      <div class="section-title">Biometría</div>
+      <div class="card">
+        <div class="biometrics-row">
+          <div class="bio-lft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C9.8 2 8 3.8 8 6c0 1.1.45 2.1 1.17 2.83M12 2c2.2 0 4 1.8 4 4 0 1.1-.45 2.1-1.17 2.83M10 14c-.55.65-.9 1.29-1 2M14 14c.55.65.9 1.29 1 2"/></svg><div><div class="ttl">Biometría</div><div class="sub">Registrada · activa</div></div></div>
+          <div class="ok-badge">OK</div>
+        </div>
+      </div>
+      <div class="section-title">Actividad del día</div>
+      <div class="info-grid">
+        <div class="info-tile"><div class="i-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0018 9h-1.26A8 8 0 103 16.29"/></svg>Entradas registradas</div><div class="i-val" style="color:var(--accent-green);">12</div></div>
+        <div class="info-tile"><div class="i-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 7 12 3 8 7"/><line x1="12" y1="12" x2="12" y2="3"/><path d="M20.88 18.09A5 5 0 0018 9h-1.26A8 8 0 103 16.29"/></svg>Salidas registradas</div><div class="i-val" style="color:var(--accent-orange);">8</div></div>
+      </div>
+      <div class="section-title">Acciones rápidas</div>
+      <button class="voice-inventory-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/></svg><div class="vtxt">Activar inventario parlante<span>Iniciar asistente de voz</span></div></button>
+    </div>
+    <nav class="bottom-nav">
+      <div class="nav-item" onclick="goTo('s2')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Inicio</div>
+      <div class="nav-item" onclick="goTo('s5')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 00-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 00-8-8z"/></svg>Ubicar</div>
+      <div class="nav-item" onclick="goTo('s4')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>Alertas</div>
+      <div class="nav-item active" onclick="goTo('s6')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Perfil</div>
+    </nav>
+  </div>
+
+</div><!-- /app-shell -->
+
+<!-- ══════════════════════════════════════
+     MODAL — TICKET DE COMPRA
+══════════════════════════════════════ -->
+<div class="modal-backdrop" id="ticketModal" onclick="closeIfBackdrop(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;color:var(--accent-yellow)"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        <span class="modal-title">Ticket de compra</span>
+      </div>
+      <div class="modal-close" onclick="closeTicket()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+    </div>
+
+    <!-- FORM -->
+    <div class="modal-body" id="ticketForm">
+      <div class="ticket-number">
+        <span>No. de ticket</span>
+        <strong id="ticketNum">TC-2026-0587</strong>
+      </div>
+      <div class="ticket-product-row">
+        <div class="ticket-product-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></div>
+        <div>
+          <div class="ticket-product-name" id="tProductName">Fusible 30A</div>
+          <div class="ticket-product-sku" id="tProductSku">SKU: FUS-030A</div>
+          <div class="ticket-stock-warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/></svg><span id="tStockWarn">quedan 4 uds.</span></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="form-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Proveedor</div>
+        <input class="form-control" id="tProveedor" placeholder="Nombre del proveedor" />
+      </div>
+      <div class="form-group">
+        <div class="form-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.82 9.72 19.79 19.79 0 01.75 1.1 2 2 0 012.73.1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91"/></svg>Teléfono proveedor</div>
+        <input class="form-control" id="tContacto" placeholder="ej. 443-123-4567" />
+      </div>
+      <div class="form-group">
+        <div class="form-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Correo proveedor</div>
+        <input class="form-control" id="tEmail" placeholder="proveedor@empresa.com" />
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <div class="form-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Fecha pedido</div>
+          <input class="form-control" type="date" id="tFecha" />
+        </div>
+        <div class="form-group">
+          <div class="form-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Entrega estimada</div>
+          <input class="form-control" type="date" id="tEntrega" />
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <div class="form-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/></svg>Cantidad</div>
+          <input class="form-control" type="number" id="tCantidad" value="50" min="1" oninput="recalcular()" />
+        </div>
+        <div class="form-group">
+          <div class="form-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Precio unit. (MXN)</div>
+          <input class="form-control" type="number" id="tPrecioUnit" value="18.50" step="0.01" min="0" oninput="recalcular()" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="form-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Forma de pago</div>
+        <select class="form-select" id="tPago">
+          <option>Transferencia bancaria</option>
+          <option>Cheque</option>
+          <option>Crédito 30 días</option>
+          <option>Crédito 60 días</option>
+          <option>Efectivo</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <div class="form-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Observaciones</div>
+        <textarea class="form-control" id="tObs" rows="2" placeholder="Instrucciones especiales, urgencia…" style="resize:none;"></textarea>
+      </div>
+
+      <!-- Resumen -->
+      <div class="ticket-summary">
+        <div class="ticket-summary-title"> Resumen del pedido</div>
+        <div class="summary-row"><span class="summary-label">Subtotal</span><span class="summary-value" id="sumSubtotal">$925.00</span></div>
+        <div class="summary-row iva"><span class="summary-label">IVA (16%)</span><span class="summary-value" id="sumIva">$148.00</span></div>
+        <div class="summary-row"><span class="summary-label">Descuento proveedor</span><span class="summary-value" id="sumDesc">— $0.00</span></div>
+        <div class="summary-row total"><span class="summary-label">Total a pagar</span><span class="summary-value" id="sumTotal">$1,073.00</span></div>
+      </div>
+    </div>
+
+    <!-- CONFIRM STATE -->
+    <div class="ticket-confirm" id="ticketConfirm">
+      <div class="confirm-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div class="confirm-title">¡Ticket generado!</div>
+      <div class="confirm-sub">El ticket de compra fue enviado al área de compras y al proveedor por correo electrónico.</div>
+      <div class="confirm-ticket-id" id="confirmTicketId">No. TC-2026-0587</div>
+      <button class="btn btn-outline btn-full" style="margin-top:8px;" onclick="closeTicket()">Cerrar</button>
+    </div>
+
+    <div class="modal-footer" id="ticketFooter">
+      <button class="btn btn-outline" style="flex:1;" onclick="closeTicket()">Cancelar</button>
+      <button class="btn btn-primary" style="flex:2;" onclick="submitTicket()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Generar y enviar ticket
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     MODAL — ALERTAS RECIENTES
+══════════════════════════════════════ -->
+<div class="modal-backdrop" id="notifModal" onclick="closeNotifIfBackdrop(event)">
+  <div class="modal-sheet" style="max-height:80svh;">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;color:var(--accent-red,#ff3d6b)"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+        <span class="modal-title" style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;color:var(--text)">Alertas Recientes</span>
+      </div>
+      <div class="modal-close" onclick="closeNotifModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+    </div>
+    <div class="modal-body" style="padding:16px 20px;">
+      <div style="display:flex; gap:12px; padding:12px 0; border-bottom:1px solid var(--border);">
+        <div style="width:3px; border-radius:2px; flex-shrink:0; min-height:40px; background:var(--accent-red,#ff3d6b);"></div>
+        <div>
+          <div style="font-size:13px; font-weight:700; color:var(--text); margin-bottom:2px;">Salida no autorizada</div>
+          <div style="font-size:11px; color:var(--text2); line-height:1.4;">Llave de torque · Pasillo B</div>
+          <div style="font-size:10px; color:var(--text3); margin-top:4px;">Hace 5 min</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:12px; padding:12px 0;">
+        <div style="width:3px; border-radius:2px; flex-shrink:0; min-height:40px; background:var(--accent,#3b82f6);"></div>
+        <div>
+          <div style="font-size:13px; font-weight:700; color:var(--text); margin-bottom:2px;">Comportamiento extraño</div>
+          <div style="font-size:11px; color:var(--text2); line-height:1.4;">Usuario #12 · accesos fuera de horario</div>
+          <div style="font-size:10px; color:var(--text3); margin-top:4px;">Ayer 22:43</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+
+  function openNotifModal() {
+    document.getElementById('notifModal').classList.add('open');
+    document.getElementById('notifModal').style.display = 'flex';
+  }
+  function closeNotifModal() {
+    document.getElementById('notifModal').classList.remove('open');
+    setTimeout(() => { document.getElementById('notifModal').style.display = 'none'; }, 200);
+  }
+  function closeNotifIfBackdrop(e) {
+    if (e.target === document.getElementById('notifModal')) closeNotifModal();
+  }
+
+  function goTo(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    const sa = document.getElementById(id).querySelector('.scroll-area');
+    if (sa) sa.scrollTop = 0;
+  }
+
+  function startBioScan() {
+    const ring = document.getElementById('bioBtn');
+    ring.classList.add('scanning');
+    setTimeout(() => { ring.classList.remove('scanning'); goTo('s2'); }, 1800);
+  }
+
+  function genTicketNum() {
+    return 'TC-2026-' + String(Math.floor(500 + Math.random() * 400)).padStart(4, '0');
+  }
+
+  const defaultData = {
+    'FUS-030A': { precio: 18.50, tel: '443-258-9900', email: 'ventas@electrodist.mx' },
+    'FLT-047':  { precio: 42.00, tel: '800-345-6789', email: 'pedidos@filtrosnorte.com.mx' }
+  };
+
+  function openTicket(product, sku, proveedor, stockWarn) {
+    const num = genTicketNum();
+    const d = defaultData[sku] || { precio: 20, tel: '', email: '' };
+
+    document.getElementById('ticketNum').textContent = num;
+    document.getElementById('tProductName').textContent = product;
+    document.getElementById('tProductSku').textContent = 'SKU: ' + sku;
+    document.getElementById('tStockWarn').textContent = stockWarn;
+    document.getElementById('tProveedor').value = proveedor;
+    document.getElementById('tContacto').value = d.tel;
+    document.getElementById('tEmail').value = d.email;
+    document.getElementById('tPrecioUnit').value = d.precio;
+    document.getElementById('tCantidad').value = 50;
+
+    const today = new Date();
+    const delivery = new Date(today); delivery.setDate(today.getDate() + 7);
+    document.getElementById('tFecha').value = today.toISOString().split('T')[0];
+    document.getElementById('tEntrega').value = delivery.toISOString().split('T')[0];
+
+    recalcular();
+
+    document.getElementById('ticketForm').style.display = 'block';
+    document.getElementById('ticketConfirm').classList.remove('show');
+    document.getElementById('ticketFooter').style.display = 'flex';
+    document.getElementById('ticketModal').classList.add('open');
+    setTimeout(() => { document.querySelector('.modal-body').scrollTop = 0; }, 50);
+  }
+
+  function closeTicket() {
+    document.getElementById('ticketModal').classList.remove('open');
+  }
+
+  function closeIfBackdrop(e) {
+    if (e.target === document.getElementById('ticketModal')) closeTicket();
+  }
+
+  function recalcular() {
+    const qty = parseFloat(document.getElementById('tCantidad').value) || 0;
+    const unit = parseFloat(document.getElementById('tPrecioUnit').value) || 0;
+    const subtotal = qty * unit;
+    const iva = subtotal * 0.16;
+    const total = subtotal + iva;
+    const fmt = n => '$' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    document.getElementById('sumSubtotal').textContent = fmt(subtotal);
+    document.getElementById('sumIva').textContent = fmt(iva);
+    document.getElementById('sumDesc').textContent = '— $0.00';
+    document.getElementById('sumTotal').textContent = fmt(total);
+  }
+
+  function submitTicket() {
+    const num = document.getElementById('ticketNum').textContent;
+    document.getElementById('ticketForm').style.display = 'none';
+    document.getElementById('ticketFooter').style.display = 'none';
+    document.getElementById('confirmTicketId').textContent = 'No. ' + num;
+    document.getElementById('ticketConfirm').classList.add('show');
+  }
+</script>
+</body>
+</html>
